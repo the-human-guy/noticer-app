@@ -23,7 +23,6 @@ def get_js_script():
     except UnicodeDecodeError:
         print(f"Error: 'frontend.js' is not valid UTF-8 encoded")
         sys.exit(1)
-
     return EDITOR_SCRIPT
 
 class CustomHandler(http.server.SimpleHTTPRequestHandler):
@@ -49,7 +48,6 @@ class CustomHandler(http.server.SimpleHTTPRequestHandler):
                             '<head>', f'<head>{META_CHARSET}', 1
                         )
                     else:
-                        # If no <head>, add meta tag at the start of the HTML
                         modified_content = f'{META_CHARSET}\n{content}'
                 
                 # Inject the frontend.js content before </body>
@@ -57,8 +55,8 @@ class CustomHandler(http.server.SimpleHTTPRequestHandler):
                     modified_content = modified_content.replace(
                         '</body>', f'{get_js_script()}</body>', 1
                     )
+                    print(f'{get_js_script()}')
                 else:
-                    # If no </body>, append the script
                     modified_content = f'{modified_content}\n{get_js_script()}'
                 
                 # Send the modified content with explicit UTF-8 encoding
@@ -76,6 +74,44 @@ class CustomHandler(http.server.SimpleHTTPRequestHandler):
         
         # Delegate all other requests (e.g., images, directory listing) to the default handler
         super().do_GET()
+
+    def do_PUT(self):
+        # Handle saving existing files
+        try:
+            file_path = os.path.join(self.directory, self.path.lstrip('/'))
+            # Ensure the directory exists
+            os.makedirs(os.path.dirname(file_path), exist_ok=True)
+            # Read the request body
+            content_length = int(self.headers['Content-Length'])
+            content = self.rfile.read(content_length).decode('utf-8')
+            # Write the content to the file
+            with open(file_path, 'w', encoding='utf-8') as f:
+                f.write(content)
+            self.send_response(200)
+            self.send_header('Content-type', 'text/plain')
+            self.end_headers()
+            self.wfile.write(b'File saved successfully')
+        except Exception as e:
+            self.send_error(500, f'Error saving file: {e}')
+
+    def do_POST(self):
+        # Handle creating new files (same as PUT, overwrites if exists)
+        try:
+            file_path = os.path.join(self.directory, self.path.lstrip('/'))
+            # Ensure the directory exists
+            os.makedirs(os.path.dirname(file_path), exist_ok=True)
+            # Read the request body
+            content_length = int(self.headers['Content-Length'])
+            content = self.rfile.read(content_length).decode('utf-8')
+            # Write the content to the file
+            with open(file_path, 'w', encoding='utf-8') as f:
+                f.write(content)
+            self.send_response(201)
+            self.send_header('Content-type', 'text/plain')
+            self.end_headers()
+            self.wfile.write(b'File created successfully')
+        except Exception as e:
+            self.send_error(500, f'Error creating file: {e}')
 
 def main():
     # Parse command-line arguments
