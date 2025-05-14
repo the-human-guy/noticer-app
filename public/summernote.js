@@ -4903,8 +4903,7 @@ var Editor = /*#__PURE__*/function () {
       // bind custom events
       this.$editable.on('keydown', function (event) {
         if (event.keyCode === key.code.ENTER) {
-            return
-        //   _this2.context.triggerEvent('enter', event);
+            _this2.context.triggerEvent('enter', event);
         }
         _this2.context.triggerEvent('keydown', event);
 
