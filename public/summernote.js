@@ -4681,6 +4681,42 @@ var Editor = /*#__PURE__*/function () {
       _this.bullet.outdent(_this.editable);
     });
 
+    // the-human-guy added
+    this.insertNewline = this.wrapCommand(function () {
+      // Get the current cursor range
+      var rng = this.getLastRange();
+      var parentNode = rng.commonAncestor(); // The common parent, e.g., a <pre> tag
+      var startContainer = rng.sc; // The node where the cursor starts
+      var startOffset = rng.so; // The cursor position within that node
+
+      // Create a new text node with a newline character
+      var newlineNode = document.createTextNode('\n');
+
+      // Case 1: Cursor is inside a text node
+      if (startContainer.nodeType === Node.TEXT_NODE) {
+          var text = startContainer.nodeValue;
+          // Insert the newline at the cursor position
+          startContainer.nodeValue = text.slice(0, startOffset) + '\n' + text.slice(startOffset);
+          // Create a new collapsed range after the newline
+          rng = range.create(startContainer, startOffset + 1, startContainer, startOffset + 1);
+      } 
+      // Case 2: Cursor is between elements (e.g., between <h1> and <div> in a <pre>)
+      else if (startContainer === parentNode && parentNode.nodeName === 'PRE') {
+          // Insert the newline node at the cursor position
+          if (startOffset < parentNode.childNodes.length) {
+              parentNode.insertBefore(newlineNode, parentNode.childNodes[startOffset]);
+          } else {
+              parentNode.appendChild(newlineNode);
+          }
+          // Create a new collapsed range after the newline
+          rng = range.create(newlineNode, 1, newlineNode, 1);
+      }
+
+      // Apply the updated range and set the cursor
+      rng.select();
+      this.setLastRange(rng);
+    });
+
     /**
      * insertNode
      * insert node
@@ -4903,6 +4939,10 @@ var Editor = /*#__PURE__*/function () {
       // bind custom events
       this.$editable.on('keydown', function (event) {
         if (event.keyCode === key.code.ENTER) {
+            // the-human-guy added
+            event.preventDefault();          // Stop the default Enter behavior
+            _this2.insertNewline();            // Insert '\n' instead
+            // the-human-guy added end
             _this2.context.triggerEvent('enter', event);
         }
         _this2.context.triggerEvent('keydown', event);
