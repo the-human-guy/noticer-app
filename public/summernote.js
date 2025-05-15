@@ -4940,8 +4940,10 @@ var Editor = /*#__PURE__*/function () {
       this.$editable.on('keydown', function (event) {
         if (event.keyCode === key.code.ENTER) {
             // the-human-guy added
-            event.preventDefault();          // Stop the default Enter behavior
-            _this2.insertNewline();            // Insert '\n' instead
+            if (!event.originalEvent.shiftKey) {
+              event.preventDefault();          // Stop the default Enter behavior
+              _this2.insertNewline();            // Insert '\n' instead
+            }
             // the-human-guy added end
             _this2.context.triggerEvent('enter', event);
         }
@@ -9069,7 +9071,7 @@ var HintPopover = /*#__PURE__*/function () {
     keyMap: {
       pc: {
         'ESC': 'escape',
-        'ENTER': 'insertParagraph',
+        'ENTER': 'insertParagraph', // the-human-guy -- maybe comment this out
         'CTRL+Z': 'undo',
         'CTRL+Y': 'redo',
         'TAB': 'tab',
@@ -9099,7 +9101,7 @@ var HintPopover = /*#__PURE__*/function () {
       },
       mac: {
         'ESC': 'escape',
-        'ENTER': 'insertParagraph',
+        'ENTER': 'insertParagraph', // the-human-guy -- maybe comment this out
         'CMD+Z': 'undo',
         'CMD+SHIFT+Z': 'redo',
         'TAB': 'tab',
