@@ -39,50 +39,6 @@ function initSummernote() {
             <div id="summernote"></div>
         `;
 
-        // works like fucking shit. simply use shift+enter always.
-        // it's also impossible to make enter work like shift+enter.
-
-        // $("#summernote").on("summernote.enter", function (we, e) {
-        //     $(this).summernote("insertText", `\n`);
-        //     e.preventDefault();
-        // });
-
-        // $("#summernote").on("summernote.enter", function (we, e) {
-        //     window.x = $(this)
-        //     window.z = we
-        //     window.c = e
-        //     // $(this).summernote("insertText", `\n`);
-        //     e.preventDefault();
-        // });
-
-        var context
-
-        $("#summernote").summernote({
-            // callbacks: {
-            //     onKeydown: function(e) {
-            //         if (e.keyCode === 13 && !e.shiftKey) { // Shift+Enter
-            //             e.preventDefault();
-            //             // $(this).trigger($.Event("keydown", { keyCode: 13, shiftKey: true }));
-            //             $('.note-editable')[0].dispatchEvent(new KeyboardEvent('keydown', { key: 13, keyCode: 13, shiftKey: true, repeat: true, isComposing: true }));
-            //         }
-            //     }
-            // }
-        });
-
-        $.extend($.summernote.plugins, {
-            'brenter': function (context) {
-                $log('kekus')
-                this.events = {
-                    'summernote.enter': function (we, e) {
-                        $log('kekus pizdec')
-                        // insert 2 br tags (if only one br tag is inserted the cursor won't go to the next line)
-                        document.execCommand('insertHTML', false, '<br><br>');
-                        e.preventDefault();
-                    }
-                };
-            }
-        })
-
         $("#summernote").summernote("code", originalPre.outerHTML);
         
         body.querySelector('pre').style.display = 'none';
