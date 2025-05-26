@@ -4,6 +4,8 @@ const body = document.body;
 
 
 function initEditor() {
+    const imgsToBeRemovedFromServer = []
+    
     // Init Summernote
     $(document).ready(function () {
         window.editor = new FroalaEditor('#editor-anchor', {
@@ -27,12 +29,20 @@ function initEditor() {
                 },
           
                 'save.after': function () {
-                  // After successfully save request.
+                    imgsToBeRemovedFromServer.forEach(imgUrl => {
+                        fetch(imgUrl, { method: 'DELETE' })
+                    })
+                    imgsToBeRemovedFromServer.length = 0
+
                 },
           
                 'save.error': function () {
                   // Do something here.
-                }
+                },
+
+                'image.removed': function ($img) {
+                    imgsToBeRemovedFromServer.push(new URL($img[0].src).pathname)
+                  }
               },
               saveInterval: 10000, // default
               imageUploadURL: '/upload-image',

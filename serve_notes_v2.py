@@ -7,6 +7,7 @@ import urllib.parse  # Added for parsing URL-encoded FormData
 import cgi  # Added for parsing multipart FormData
 import uuid  # Added for generating unique image filenames
 import mimetypes  # Added for guessing image extensions
+import json  # Added for parsing JSON requests
 
 # Meta tag to ensure UTF-8 encoding
 META_CHARSET = '<meta charset="UTF-8">'
@@ -170,6 +171,52 @@ class CustomHandler(http.server.SimpleHTTPRequestHandler):
             self.wfile.write(b'File saved successfully')
         except Exception as e:
             self.send_error(500, f'Error saving file: {e}')
+
+    def do_DELETE(self):
+        try:
+            # The path itself is the image path (e.g., /fins/media/6ecb0709-d18a-4cea-b105-46ac77c91b7c.png)
+            image_path = self.path
+            if not image_path or image_path == '/':
+                response = f'{{"status": "error", "message": "Image path not provided"}}'
+                self.send_response(400)
+                self.send_header('Content-type', 'application/json')
+                self.end_headers()
+                self.wfile.write(response.encode('utf-8'))
+                return
+
+            # Decode URL-encoded path (e.g., spaces or special characters)
+            image_path = urllib.parse.unquote(image_path)
+
+            # Construct the full path to the image
+            full_image_path = os.path.join(self.directory, image_path.lstrip('/'))
+            
+            # Check if the file exists
+            if not os.path.exists(full_image_path):
+                response = f'{{"status": "error", "message": "Image not found"}}'
+                self.send_response(404)
+                self.send_header('Content-type', 'application/json')
+                self.end_headers()
+                self.wfile.write(response.encode('utf-8'))
+                return
+
+            # Delete the image
+            os.remove(full_image_path)
+
+            # Return success response
+            response = f'{{"status": "success"}}'
+            self.send_response(200)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            self.wfile.write(response.encode('utf-8'))
+            return
+
+        except Exception as e:
+            response = f'{{"status": "error", "message": "Error deleting image: {str(e)}"}}'
+            self.send_response(500)
+            self.send_header('Content-type', 'application/json')
+            self.end_headers()
+            self.wfile.write(response.encode('utf-8'))
+            return
 
     def do_POST(self):
         # Handle image upload endpoint
