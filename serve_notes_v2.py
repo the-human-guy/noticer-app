@@ -3,6 +3,8 @@ import socketserver
 import os
 import sys
 import argparse
+import urllib.parse  # Added for parsing URL-encoded FormData
+import cgi  # Added for parsing multipart FormData
 
 # Meta tag to ensure UTF-8 encoding
 META_CHARSET = '<meta charset="UTF-8">'
@@ -110,14 +112,50 @@ class CustomHandler(http.server.SimpleHTTPRequestHandler):
         # Delegate other requests to default handler
         super().do_GET()
 
+    # Helper method to parse FormData
+    def parse_form_data(self, content_length):
+        content_type = self.headers.get('Content-Type', '').lower()
+        
+        # Handle application/x-www-form-urlencoded (e.g., body=encoded_content)
+        if 'application/x-www-form-urlencoded' in content_type:
+            raw_data = self.rfile.read(content_length).decode('utf-8')
+            parsed_data = urllib.parse.parse_qs(raw_data, keep_blank_values=True)
+            # Assuming the content is in a field named 'body'
+            content = parsed_data.get('body', [''])[0]
+            return urllib.parse.unquote(content)  # Decode URL-encoded content
+
+        # Handle multipart/form-data
+        elif 'multipart/form-data' in content_type:
+            # Use cgi.FieldStorage to parse multipart/form-data
+            form = cgi.FieldStorage(
+                fp=self.rfile,
+                headers=self.headers,
+                environ={'REQUEST_METHOD': 'POST'},
+                keep_blank_values=True
+            )
+            if 'body' in form:
+                content = form['body'].value
+                return content
+            else:
+                raise ValueError("No 'body' field found in multipart/form-data")
+
+        return None  # Not a FormData content type
+
     def do_PUT(self):
         try:
             file_path = os.path.join(self.directory, self.path.lstrip('/'))
             os.makedirs(os.path.dirname(file_path), exist_ok=True)
             content_length = int(self.headers['Content-Length'])
-            content = self.rfile.read(content_length).decode('utf-8')
-            if not content.lower().strip().startswith('<!doctype'):
-                content = f'{DOCTYPE}\n{content}'
+            
+            # Check if the request is FormData and parse accordingly
+            content = self.parse_form_data(content_length)
+            
+            # If not FormData, assume raw HTML
+            if content is None:
+                content = self.rfile.read(content_length).decode('utf-8')
+            
+            # if not content.lower().strip().startswith('<!doctype'):
+            #     content = f'{DOCTYPE}\n{content}'
             with open(file_path, 'w', encoding='utf-8') as f:
                 f.write(content)
             self.send_response(200)
@@ -132,7 +170,14 @@ class CustomHandler(http.server.SimpleHTTPRequestHandler):
             file_path = os.path.join(self.directory, self.path.lstrip('/'))
             os.makedirs(os.path.dirname(file_path), exist_ok=True)
             content_length = int(self.headers['Content-Length'])
-            content = self.rfile.read(content_length).decode('utf-8')
+            
+            # Check if the request is FormData and parse accordingly
+            content = self.parse_form_data(content_length)
+            
+            # If not FormData, assume raw HTML
+            if content is None:
+                content = self.rfile.read(content_length).decode('utf-8')
+            
             if not content.lower().strip().startswith('<!doctype'):
                 content = f'{DOCTYPE}\n{content}'
             with open(file_path, 'w', encoding='utf-8') as f:
