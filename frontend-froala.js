@@ -21,6 +21,24 @@ function initEditor() {
             enter: FroalaEditor.ENTER_BR,
             saveURL: window.location.pathname,
             saveMethod: 'PUT',
+            events: {
+                'save.before': function () {
+                  // Before save request is made.
+                },
+          
+                'save.after': function () {
+                  // After successfully save request.
+                },
+          
+                'save.error': function () {
+                  // Do something here.
+                }
+              },
+              saveInterval: 10000, // default
+              imageUploadURL: '/upload-image',
+              imageUploadParams: {
+                filePath: location.pathname,
+              },
            })
 
         function downloadFile(file) {

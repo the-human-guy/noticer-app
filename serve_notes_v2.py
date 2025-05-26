@@ -5,6 +5,8 @@ import sys
 import argparse
 import urllib.parse  # Added for parsing URL-encoded FormData
 import cgi  # Added for parsing multipart FormData
+import uuid  # Added for generating unique image filenames
+import mimetypes  # Added for guessing image extensions
 
 # Meta tag to ensure UTF-8 encoding
 META_CHARSET = '<meta charset="UTF-8">'
@@ -12,7 +14,6 @@ META_CHARSET = '<meta charset="UTF-8">'
 DOCTYPE = '<!DOCTYPE html>'
 # Path to public directory for static files
 PUBLIC_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'public')
-
 
 FE_SCRIPT_NAME = 'frontend.js'
 UI_HTML_NAME = 'ui.html'
@@ -133,11 +134,16 @@ class CustomHandler(http.server.SimpleHTTPRequestHandler):
                 environ={'REQUEST_METHOD': 'POST'},
                 keep_blank_values=True
             )
-            if 'body' in form:
-                content = form['body'].value
-                return content
-            else:
-                raise ValueError("No 'body' field found in multipart/form-data")
+            result = {}
+            for key in form.keys():
+                if form[key].filename:  # File field (e.g., 'file')
+                    result[key] = {
+                        'filename': form[key].filename,
+                        'data': form[key].file.read()
+                    }
+                else:  # Text field (e.g., 'filePath' or 'body')
+                    result[key] = form[key].value
+            return result
 
         return None  # Not a FormData content type
 
@@ -166,6 +172,61 @@ class CustomHandler(http.server.SimpleHTTPRequestHandler):
             self.send_error(500, f'Error saving file: {e}')
 
     def do_POST(self):
+        # Handle image upload endpoint
+        if self.path == '/upload-image':
+            try:
+                content_length = int(self.headers['Content-Length'])
+                form_data = self.parse_form_data(content_length)
+                
+                if not form_data or 'filePath' not in form_data or 'file' not in form_data:
+                    self.send_error(400, 'Missing filePath or file in FormData')
+                    return
+
+                # Extract filePath and file data
+                file_path = form_data['filePath']
+                image_data = form_data['file']['data']
+                original_filename = form_data['file']['filename']
+
+                # Determine the directory of the note
+                note_dir = os.path.dirname(file_path.lstrip('/'))
+                # Create the media directory at the same level
+                media_dir = os.path.join(self.directory, note_dir, 'media')
+                os.makedirs(media_dir, exist_ok=True)
+
+                # Guess the file extension from the original filename or content
+                extension = os.path.splitext(original_filename)[1].lower()
+                if not extension:
+                    # If no extension, try to guess from the content
+                    mime_type, _ = mimetypes.guess_type(original_filename)
+                    if mime_type:
+                        extension = mimetypes.guess_extension(mime_type) or ''
+                
+                # Generate a unique filename for the image
+                unique_filename = f"{uuid.uuid4()}{extension}"
+                image_path = os.path.join(media_dir, unique_filename)
+
+                # Save the image
+                with open(image_path, 'wb') as f:
+                    f.write(image_data)
+
+                # Construct the relative path to the image for the response
+                relative_image_path = os.path.join(note_dir, 'media', unique_filename)
+                if not relative_image_path.startswith('/'):
+                    relative_image_path = '/' + relative_image_path
+
+                # Return JSON response
+                response = f'{{"link": "{relative_image_path}"}}'
+                self.send_response(200)
+                self.send_header('Content-type', 'application/json')
+                self.end_headers()
+                self.wfile.write(response.encode('utf-8'))
+                return
+
+            except Exception as e:
+                self.send_error(500, f'Error uploading image: {e}')
+                return
+
+        # Original POST handler for HTML content
         try:
             file_path = os.path.join(self.directory, self.path.lstrip('/'))
             os.makedirs(os.path.dirname(file_path), exist_ok=True)
