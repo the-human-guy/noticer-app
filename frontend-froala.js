@@ -1,3 +1,5 @@
+// Supported Froala version is 4.5.2
+
 const $log = console.log.bind(console);
 const body = document.body;
 
@@ -7,22 +9,19 @@ function initEditor() {
   // Init Summernote
   $(document).ready(function () {
     window.editor = new FroalaEditor("#editor-anchor", {
+      // htmlAllowedTags: ['a', 'abbr', 'address', 'area', 'article', 'aside', 'audio', 'b', 'base', 'bdi', 'bdo', 'blockquote', 'br', 'button', 'canvas', 'caption', 'cite', 'code', 'col', 'colgroup', 'datalist', 'dd', 'del', 'details', 'dfn', 'dialog', 'div', 'dl', 'dt', 'em', 'embed', 'fieldset', 'figcaption', 'figure', 'footer', 'form', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'header', 'hgroup', 'hr', 'i', 'iframe', 'img', 'input', 'ins', 'kbd', 'keygen', 'label', 'legend', 'li', 'link', 'main', 'map', 'mark', 'menu', 'menuitem', 'meter', 'nav', 'noscript', 'object', 'ol', 'optgroup', 'option', 'output', 'p', 'param', 'pre', 'progress', 'queue', 'rp', 'rt', 'ruby', 's', 'samp', 'script', 'style', 'section', 'select', 'small', 'source', 'span', 'strike', 'strong', 'sub', 'summary', 'sup', 'table', 'tbody', 'td', 'textarea', 'tfoot', 'th', 'thead', 'time', 'title', 'tr', 'track', 'u', 'ul', 'var', 'video', 'wbr'],
+      htmlRemoveTags: [], // default is ['script', 'style']
+      pastePlain: true, // Avoids formatting during paste
       multiline: true,
       htmlUntouched: true, // prevents froala from collapsing ul>li lists
-      entities: '&amp;&lt;&gt;', // Only escape &, <, >
-      // codeBeautifierOptions: {
-      //   htmlAllowedTags: 
-      // },
-      // codeBeautifierOptions: {
-      //   end_with_newline: true,
-      //   indent_inner_html: true,
-      //   htmlAllowedTags: 
-      //   extra_liners: "['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'blockquote', 'pre', 'ul', 'li',s 'ol', 'table', 'dl']",
-      //   brace_style: "expand",
-      //   indent_char: " ",
-      //   indent_size: 4,
-      //   wrap_line_length: 0,
-      // },
+      entities: "&amp;&lt;&gt;", // Only escape &, <, >
+      codeBeautifierOptions: {
+        end_with_newline: true, // last line of file is newline
+        indent_inner_html: true, // indent nested tags
+        brace_style: "expand", // don't collapse style and script tags
+        indent_char: " ",
+        indent_size: 4,
+      },
       enter: FroalaEditor.ENTER_BR,
       saveURL: window.location.pathname,
       saveMethod: "PUT",

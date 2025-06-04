@@ -16,4 +16,4 @@ OR V2
 
 
 ## todo
-- don't turn `<b>` into `<strong>`
+- don't turn `<b>` into `<strong>` -- seemingly can't be configured, requires source code patch 
