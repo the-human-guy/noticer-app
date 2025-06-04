@@ -46,7 +46,7 @@ function initEditor() {
         },
       },
       // autosave
-      //   saveInterval: 10000, // default
+      // saveInterval: 10000, // default
       saveInterval: 0, // turn autosave off
       imageUploadURL: "/upload-image",
       imageUploadParams: {
