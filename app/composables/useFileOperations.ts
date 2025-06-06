@@ -52,6 +52,9 @@ export function useFileOperations(): FileOperations {
         // @ts-ignore
         method: 'PUT',
         body: content,
+        headers: {
+          'Content-Type': 'multipart/formdata',
+        },
       })
     }
   }
