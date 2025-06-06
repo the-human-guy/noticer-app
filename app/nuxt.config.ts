@@ -4,4 +4,16 @@ export default defineNuxtConfig({
   devtools: { enabled: true },
   modules: ['@nuxt/eslint', '@nuxtjs/ionic'],
   ssr: false,
+  ionic: {
+    css: {
+      utilities: true,
+    },
+    config: {},
+  },
+  runtimeConfig: {
+    notesDir: process.env.NOTES_DIR || './data-notes',
+    public: {
+      notesDir: process.env.NOTES_DIR || './data-notes',
+    },
+  },
 })
