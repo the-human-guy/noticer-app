@@ -19,4 +19,11 @@ async function pick_dir() {
     directory: true,
   });
   console.log(file);
+
+
+
+  const files = await window.__TAURI__.fs.readDir(file);
+  console.log(files)
+  Alpine.store('Files').items = files
+
 }
