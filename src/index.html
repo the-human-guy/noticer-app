@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Noticer</title>
+    <link rel="stylesheet" href="styles.css" />
     <script src="./main.js"></script>
     <!-- Alpine Plugins -->
     <script src="https://cdn.jsdelivr.net/npm/@alpinejs/persist@3.x.x/dist/cdn.min.js"></script>
@@ -14,28 +15,38 @@
     <script src="./alpine.js"></script>
   </head>
   <body>
-    <div
-      x-data="{ selectedDir: '', async selectDirectory() { try { this.selectedDir = await window.__TAURI__.core.invoke('pick_directory'); } catch (e) { this.selectedDir = 'Error: ' + e; } } }">
-      <h1>Noticer</h1>
-      <button @click="$store.Files.pickDir">Open</button>
-      <button @click="$store.Files.goBack()">Back</button>
-      <button @click="$store.Files.newFile()">New File</button>
-      <button @click="$store.Files.newDir()">New Dir</button>
-      <p x-text="$store.Files.selectedDirPath"></p>
-      <template x-for="file in $store.Files.items">
-        <template x-if="file.isDirectory">
-          <div x-text="file.name" @click="$store.Files.pickFile(file)">
-          </div>
-        </template>
-      </template>
+    <div class="wrapper">
+      
+      <div id="header">
+        <button @click="$store.Files.pickDir">Open</button>
+        <button @click="$store.Files.goBack()">Back</button>
+        <button @click="$store.Files.newFile()">New File</button>
+        <button @click="$store.Files.newDir()">New Dir</button>
+        <p x-text="$store.Files.selectedDirPath"></p>
+      </div>
+      
+      <div class="content">
+        <div class="files">
+          <template x-for="file in $store.Files.items">
+            <template x-if="file.isDirectory">
+              <div class="files__file" x-text="file.name" @click="$store.Files.pickFile(file)">
+              </div>
+            </template>
+          </template>
+      
+          <template x-for="file in $store.Files.items">
+            <template x-if="!file.isDirectory">
+              <div class="files__file" x-text="file.name" @click="$store.Files.pickFile(file)">
+              </div>
+            </template>
+          </template>
+        </div>
+      
+        <div class="file">
+          <div x-text="$store.Files.fileContent"></div>
+        </div>
+      </div>
 
-      <template x-for="file in $store.Files.items">
-        <template x-if="!file.isDirectory">
-          <div x-text="file.name" @click="$store.Files.pickFile(file)">
-          </div>
-        </template>
-      </template>
-      <div x-text="$store.Files.fileContent"></div>
     </div>
   </body>
 </html>
