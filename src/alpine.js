@@ -43,7 +43,7 @@ alp.store('Files', {
     $Files().selectedDirPath = newPath
     $Files().readSelectedDir()
   },
-  pickFile(file) {
+  async pickFile(file) {
     const {
       name,
       isDirectory,
@@ -51,8 +51,14 @@ alp.store('Files', {
       isSymlink,
     } = file
     log(name)
+    const filePath = $Files().selectedDirPath + "/" + name
+
     if (isDirectory) {
-      $Files().changeDir($Files().selectedDirPath + "/" + name)
+      $Files().changeDir(filePath)
+    } else {
+      const fileContent = await fs.readTextFile(filePath);
+      log(fileContent)
+      $Files().fileContent = fileContent
     }
   },
   goBack() {
