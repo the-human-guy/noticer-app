@@ -14,13 +14,23 @@
     <script src="./alpine.js"></script>
   </head>
   <body>
-    <div x-data="{ selectedDir: '', async selectDirectory() { try { this.selectedDir = await window.__TAURI__.core.invoke('pick_directory'); } catch (e) { this.selectedDir = 'Error: ' + e; } } }">
+    <div
+      x-data="{ selectedDir: '', async selectDirectory() { try { this.selectedDir = await window.__TAURI__.core.invoke('pick_directory'); } catch (e) { this.selectedDir = 'Error: ' + e; } } }">
       <h1>Noticer</h1>
-      <button @click="$store.Files.pickDir">Select Directory</button>
+      <button @click="$store.Files.pickDir">Open</button>
       <button @click="$store.Files.goBack()">Back</button>
+      <button @click="$store.Files.newFile()">New File</button>
+      <button @click="$store.Files.newDir()">New Dir</button>
       <p x-text="$store.Files.selectedDirPath"></p>
       <template x-for="file in $store.Files.items">
         <template x-if="file.isDirectory">
+          <div x-text="file.name" @click="$store.Files.pickFile(file)">
+          </div>
+        </template>
+      </template>
+
+      <template x-for="file in $store.Files.items">
+        <template x-if="!file.isDirectory">
           <div x-text="file.name" @click="$store.Files.pickFile(file)">
           </div>
         </template>

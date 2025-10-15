@@ -1,3 +1,9 @@
+window.log = console.log
+log.error = console.error
+log.warn = console.warn
+log.info = console.info
+log.table = console.table
+
 let greetInputEl;
 let greetMsgEl;
 

@@ -7,7 +7,7 @@ const $Files = () => Alpine.store('Files')
 alp.store('Files', {
   items: [],
   init() {
-    console.log(this.selectedDirPath)
+    log(this.selectedDirPath)
     if (this.selectedDirPath) {
       this.readSelectedDir()
     }
@@ -22,7 +22,7 @@ alp.store('Files', {
       multiple: false,
       directory: true,
     });
-    console.log(file);
+    log(file);
     $Files().userSelectedPaths[file] = true
     $Files().changeDir(file)
   },
@@ -31,9 +31,9 @@ alp.store('Files', {
     
     try {
       files = await fs.readDir(this.selectedDirPath);
-      console.log(files)
+      log(files)
     } catch (error) {
-      console.error('readSelectedDir failed: ', error)
+      log.error('readSelectedDir failed: ', error)
       files = []
     } finally {
       $Files().items = files
@@ -50,17 +50,31 @@ alp.store('Files', {
       isFile,
       isSymlink,
     } = file
-    console.log(name)
+    log(name)
     if (isDirectory) {
       $Files().changeDir($Files().selectedDirPath + "/" + name)
     }
   },
   goBack() {
     const newPath = $Files().selectedDirPath.split('/').slice(0, -1).join('/')
-    console.log(newPath)
+    log(newPath)
     if (isPathAllowed($Files().userSelectedPaths, newPath)) {
-      console.log('isPathAllowed true')
+      log('isPathAllowed true')
       $Files().changeDir(newPath)
     }
+  },
+  async newFile() {
+    const path = await dialog.save({
+      filters: [
+        {
+          name: 'My Filter',
+          extensions: ['html'],
+        },
+      ],
+    })
+    log(path)
+    const file = await fs.create(path);
+    await file.write(new TextEncoder().encode('Hello world'));
+    await file.close();
   }
 })
