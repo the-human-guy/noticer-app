@@ -4,12 +4,14 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Noticer</title>
+    <script src="./main.js"></script>
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
   </head>
   <body>
     <div x-data="{ selectedDir: '', async selectDirectory() { try { this.selectedDir = await window.__TAURI__.core.invoke('pick_directory'); } catch (e) { this.selectedDir = 'Error: ' + e; } } }">
       <h1>Noticer</h1>
-      <button @click="selectDirectory">Select Directory</button>
+      <!-- <button @click="selectDirectory">Select Directory</button> -->
+      <button @click="pick_dir()">Select Directory</button>
       <p x-text="selectedDir"></p>
     </div>
   </body>

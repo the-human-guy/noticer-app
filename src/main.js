@@ -1,4 +1,5 @@
 const { invoke } = window.__TAURI__.core;
+const { dialog } = window.__TAURI__;
 
 let greetInputEl;
 let greetMsgEl;
@@ -9,10 +10,13 @@ async function greet() {
 }
 
 window.addEventListener("DOMContentLoaded", () => {
-  greetInputEl = document.querySelector("#greet-input");
-  greetMsgEl = document.querySelector("#greet-msg");
-  document.querySelector("#greet-form").addEventListener("submit", (e) => {
-    e.preventDefault();
-    greet();
-  });
+  // greet();
 });
+
+async function pick_dir() {
+  const file = await dialog.open({
+    multiple: false,
+    directory: true,
+  });
+  console.log(file);
+}
