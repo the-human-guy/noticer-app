@@ -116,3 +116,7 @@ button {
 .file {
   overflow-y: auto;
 }
+
+#wysiwyg {
+  display: none;
+}

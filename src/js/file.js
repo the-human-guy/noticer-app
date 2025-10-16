@@ -8,14 +8,20 @@ alp.store('File', {
     }
   },
   openedFilePath: alp.$persist('').as('openedFilePath'),
-  fileContent: '',
+  _fileContent: '',
+  get fileContent() {
+    return this._fileContent
+  },
+  set fileContent(newVal) {
+    this._fileContent = newVal || ' '
+  },
   async readSelectedFile() {
     const fileContent = await fs.readTextFile($File().openedFilePath);
     log(fileContent)
     $File().fileContent = fileContent
     setTimeout(() => {
       $Editor().initEditor()
-    }, 1000)
+    }, 0)
   },
   async changeFile(newPath) {
     $File().openedFilePath = newPath
