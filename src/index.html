@@ -25,10 +25,10 @@
   <div class="wrapper">
 
     <div id="header">
-      <button @click="$store.Files.pickDir">Open</button>
-      <button @click="$store.Files.goBack()">Back</button>
-      <button @click="$store.Files.newFile()">New File</button>
-      <button @click="$store.Files.newDir()">New Dir</button>
+      <button @click="$store.Files.goBack()" title="back">⬅️</button>
+      <button @click="$store.Files.pickDir" title="open">📂</button>
+      <button @click="$store.Files.newFile()" title="new file">📄➕</button>
+      <button @click="$store.Files.newDir()" title="new dir">📁➕</button>
       <p x-text="$store.Files.selectedDirPath"></p>
     </div>
 

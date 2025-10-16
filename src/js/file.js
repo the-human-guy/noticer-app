@@ -1,6 +1,5 @@
 const $File = () => alp.store('File')
 alp.store('File', {
-  items: [],
   init() {
     log(this.openedFilePath)
     if (this.openedFilePath) {
