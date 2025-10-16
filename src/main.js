@@ -1,20 +1,27 @@
+// logger
+
 window.log = console.log
 log.error = console.error
 log.warn = console.warn
 log.info = console.info
 log.table = console.table
 
-let greetInputEl;
-let greetMsgEl;
 
-async function greet() {
-  // Learn more about Tauri commands at https://tauri.app/develop/calling-rust/
-  greetMsgEl.textContent = await invoke("greet", { name: greetInputEl.value });
-}
 
-window.addEventListener("DOMContentLoaded", () => {
-  // greet();
-});
+// tauri
+
+const { invoke } = window.__TAURI__.core;
+const { dialog, fs } = window.__TAURI__;
+
+
+
+// alpine
+
+const alp = Alpine
+
+
+
+// utils
 
 function isPathAllowed(allowedPaths, testPath) {
   // Normalize test path (remove trailing slash)

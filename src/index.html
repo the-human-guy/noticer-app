@@ -1,68 +1,60 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Noticer</title>
-    <link rel="stylesheet" href="styles.css" />
-    <script src="./main.js"></script>
-    <!-- Alpine Plugins -->
-    <script src="https://cdn.jsdelivr.net/npm/@alpinejs/persist@3.x.x/dist/cdn.min.js"></script>
-    
-    <!-- Alpine Core -->
-    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    
-    <!-- TinyMCE -->
-    <script src="./public/tinymce/tinymce.min.js" referrerpolicy="origin"></script>
-    
-    <script src="./alpine.js"></script>
-  </head>
-  <body>
-    <div class="wrapper">
-      
-      <div id="header">
-        <button @click="$store.Files.pickDir">Open</button>
-        <button @click="$store.Files.goBack()">Back</button>
-        <button @click="$store.Files.newFile()">New File</button>
-        <button @click="$store.Files.newDir()">New Dir</button>
-        <p x-text="$store.Files.selectedDirPath"></p>
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Noticer</title>
+  <link rel="stylesheet" href="styles.css" />
+  <!-- Alpine Plugins -->
+  <script src="https://cdn.jsdelivr.net/npm/@alpinejs/persist@3.x.x/dist/cdn.min.js"></script>
+
+  <!-- Alpine Core -->
+  <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+  <!-- TinyMCE -->
+  <script src="./public/tinymce/tinymce.min.js" referrerpolicy="origin"></script>
+
+  <script src="./main.js"></script>
+  <script src="./js/files.js"></script>
+  <script src="./js/file.js"></script>
+  <script src="./js/editor.js"></script>
+</head>
+
+<body>
+  <div class="wrapper">
+
+    <div id="header">
+      <button @click="$store.Files.pickDir">Open</button>
+      <button @click="$store.Files.goBack()">Back</button>
+      <button @click="$store.Files.newFile()">New File</button>
+      <button @click="$store.Files.newDir()">New Dir</button>
+      <p x-text="$store.Files.selectedDirPath"></p>
+    </div>
+
+    <div class="content">
+
+      <div class="files">
+        <template x-for="file in $store.Files.items">
+          <div class="files__file" x-text="file.name" @click="$store.Files.pickFile(file)">
+          </div>
+        </template>
       </div>
-      
-      <div class="content">
-        <div class="files">
-          <template x-for="file in $store.Files.items">
-            <template x-if="file.isDirectory">
-              <div class="files__file" x-text="file.name" @click="$store.Files.pickFile(file)">
-              </div>
-            </template>
-          </template>
-      
-          <template x-for="file in $store.Files.items">
-            <template x-if="!file.isDirectory">
-              <div class="files__file" x-text="file.name" @click="$store.Files.pickFile(file)">
-              </div>
-            </template>
-          </template>
-        </div>
-      
+
+      <template x-if="$store.File.fileContent">
         <div class="file">
-          <div
-            class="container mt-2" 
-            x-data="{ formattedText: '' }" x-init="$store.Editor.init('wysiwyg');"
-          >
+          <div class="container mt-2">
             <div class="row">
               <div class="col-md-6">
-                <textarea id="wysiwyg" x-model:value="formattedText"></textarea>
-              </div>
-              <div class="col-md-6" style="border: 1px solid #ccc;">
-                <div x-html="formattedText"></div>
+                <textarea id="wysiwyg" x-model:value="$store.File.fileContent"></textarea>
               </div>
             </div>
           </div>
-          <!-- <div x-text="$store.Files.fileContent"></div> -->
         </div>
-      </div>
+      </template>
 
     </div>
-  </body>
+  </div>
+</body>
+
 </html>
