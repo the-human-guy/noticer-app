@@ -16,6 +16,7 @@ alp.store('Editor', {
       toolbar: "undo redo | accordion accordionremove | blocks fontfamily fontsize | bold italic underline strikethrough | align numlist bullist | link image | table media | lineheight outdent indent| forecolor backcolor removeformat | charmap emoticons | code fullscreen preview | save print | pagebreak anchor codesample | ltr rtl",
       contextmenu: 'link image table',
       skin: 'oxide',
+      height: "100%",
       quickbars_selection_toolbar: 'bold italic | quicklink h2 h3 blockquote quickimage quicktable',
     }).then(() => {
       // add 'input' listener 
