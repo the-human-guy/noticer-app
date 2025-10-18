@@ -16,17 +16,20 @@ alp.store('Files', {
     const file = await dialog.open({
       multiple: false,
       directory: true,
-    });
-    log(file);
-    $Files().userSelectedPaths[file] = true
-    $Files().changeDir(file)
+    })
+    log(file)
+    if (file) {
+      $Files().userSelectedPaths[file] = true
+      $Files().changeDir(file)
+    }
   },
   async readSelectedDir() {
     let files = []
 
     try {
-      files = await fs.readDir(this.selectedDirPath);
-      files = files.filter(file => file.name.includes('.txt') || file.name.includes('.html'))
+      files = await fs.readDir(this.selectedDirPath)
+      // files = files.filter(file => file.name.includes('.txt') || file.name.includes('.html'))
+      files = files.filter(file => file.isDirectory)
       log(files)
     } catch (error) {
       log.error('readSelectedDir failed: ', error)
@@ -74,8 +77,9 @@ alp.store('Files', {
     })
     log(path)
     const file = await fs.create(path)
-    await file.write(new TextEncoder().encode('Hello world'))
+    await file.write(new TextEncoder().encode(''))
     await file.close()
+    $Files().readSelectedDir()
   },
 })
 
