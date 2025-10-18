@@ -80,6 +80,16 @@ alp.store('Files', {
     await file.write(new TextEncoder().encode(''))
     await file.close()
     $Files().readSelectedDir()
+    $File().changeFile(path)
+  },
+  async newDir() {
+    const newDirName = await window.prompt('Create directory');
+    const newDirPath = $Files().selectedDirPath + "/" + newDirName
+    log(newDirPath)
+    if (newDirName) {
+      await fs.mkdir(newDirPath)
+      $Files().readSelectedDir()
+    }
   },
 })
 

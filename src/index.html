@@ -16,6 +16,7 @@
   <script src="./public/tinymce/tinymce.min.js" referrerpolicy="origin"></script>
 
   <script src="./main.js"></script>
+  <script src="./js/prompt.js"></script>
   <script src="./js/files.js"></script>
   <script src="./js/file.js"></script>
   <script src="./js/editor.js"></script>
@@ -25,10 +26,18 @@
   <div class="wrapper">
 
     <div id="header">
-      <button @click="$store.Files.goBack()" title="back">⬅️</button>
-      <button @click="$store.Files.pickDir()" title="open">📂</button>
-      <button @click="$store.Files.newFile()" title="new file">📄➕</button>
-      <button @click="$store.Files.newDir()" title="new dir">📁➕</button>
+      <button x-show="$store.Files.selectedDirPath" @click="$store.Files.goBack()" title="back">
+        ⬅️
+      </button>
+      <button @click="$store.Files.pickDir()" title="open">
+        📂
+      </button>
+      <button x-show="$store.Files.selectedDirPath" @click="$store.Files.newFile()" title="new file">
+        📄➕
+      </button>
+      <button x-show="$store.Files.selectedDirPath" @click="$store.Files.newDir()" title="new dir">
+        📁➕
+      </button>
       <p x-text="$store.Files.selectedDirPath"></p>
     </div>
 
@@ -55,6 +64,22 @@
       </template>
 
     </div>
+
+    <!-- Prompt Dialog -->
+    <template x-if="$store.prompt?.showPrompt">
+      <div class="prompt-overlay">
+        <div class="prompt-box">
+          <div x-text="$store.prompt.promptMessage"></div>
+          <input x-model="$store.prompt.promptValue" @keyup.enter="$store.prompt.promptResolve($store.prompt.promptValue)"
+            class="prompt-input" type="text" />
+          <div class="prompt-buttons">
+            <button @click="$store.prompt.promptResolve($store.prompt.promptValue)">OK</button>
+            <button @click="$store.prompt.promptReject()">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </template>
+
   </div>
 </body>
 
