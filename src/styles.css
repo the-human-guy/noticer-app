@@ -1,4 +1,4 @@
-html, body {
+/* html, body {
   margin: 0;
 }
 
@@ -81,8 +81,11 @@ button {
   button:active {
     background-color: #0f0f0f69;
   }
-}
+} */
 
+:root {
+  background-color: #f6f6f6;
+}
 
 /* tinyMCE promotion button */
 .tox-promotion {
@@ -97,20 +100,30 @@ button {
 }
 
 .content {
-  display: grid;
-  grid-template-columns: 233px 1fr;
+  width: 100%;
   min-height: 0;
-  overflow: hidden;
+  display: flex;
 }
 
-.files {
+.content-row {
+  width: 100%;
+}
+
+.files-col {
+  display: flex;
+  flex-direction: column;
+  max-height: 100%;
+}
+
+.files-list {
+  min-height: 0;
   overflow-y: auto;
 }
 
-.files__file {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  padding-block: 7px;
+.file-col {
+  display: flex;
+  flex-direction: column;
+  max-height: 100%;
 }
 
 .file {

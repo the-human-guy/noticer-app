@@ -20,57 +20,76 @@
   <script src="./js/files.js"></script>
   <script src="./js/file.js"></script>
   <script src="./js/editor.js"></script>
+
+  <!-- Ionic -->
+  <script type="module" src="https://cdn.jsdelivr.net/npm/@ionic/core/dist/ionic/ionic.esm.js"></script>
+  <script nomodule src="https://cdn.jsdelivr.net/npm/@ionic/core/dist/ionic/ionic.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@ionic/core/css/ionic.bundle.css" />
+
 </head>
 
 <body>
   <div class="wrapper">
 
     <div id="header">
-      <button x-show="$store.Files.selectedDirPath" @click="$store.Files.goBack()" title="back">
+      <ion-button fill="clear" x-bind:disabled="!$store.Files.selectedDirPath" @click="$store.Files.goBack()" title="back">
         ⬅️
-      </button>
-      <button @click="$store.Files.pickDir()" title="open">
+      </ion-button>
+      <ion-button fill="clear" @click="$store.Files.pickDir()" title="open">
         📂
-      </button>
-      <button x-show="$store.Files.selectedDirPath" @click="$store.Files.newFile()" title="new file">
+      </ion-button>
+      <ion-button fill="clear" x-bind:disabled="!$store.Files.selectedDirPath" @click="$store.Files.newFile()" title="new file">
         📄➕
-      </button>
-      <button x-show="$store.Files.selectedDirPath" @click="$store.Files.newDir()" title="new dir">
+      </ion-button>
+      <ion-button fill="clear" x-bind:disabled="!$store.Files.selectedDirPath" @click="$store.Files.newDir()" title="new dir">
         📁➕
-      </button>
-      <button x-show="$store.File.openedFilePath" @click="$store.File.save()" title="save" style="float: right;">
+      </ion-button>
+      <ion-button fill="clear" x-bind:disabled="!$store.File.openedFilePath" @click="$store.File.save()" title="save" style="float: right;">
         <span x-show="!$store.File.saveSuccess">💾</span>
         <span x-show="$store.File.saveSuccess">✅</span>
-      </button>
-      <p x-text="$store.Files.selectedDirPath"></p>
-      <div>
-        <input type="text" x-model="$store.Files.filterText">
-      </div>
+      </ion-button>
+
+      <!-- <ion-breadcrumbs>
+        <ion-breadcrumb href="#home">Home</ion-breadcrumb>
+        <ion-breadcrumb href="#electronics">Electronics</ion-breadcrumb>
+        <ion-breadcrumb href="#cameras">Cameras</ion-breadcrumb>
+        <ion-breadcrumb href="#film">Film</ion-breadcrumb>
+      </ion-breadcrumbs> -->
+      
+      <div x-text="$store.Files.selectedDirPath"></div>
     </div>
 
-    <div class="content">
+    <ion-grid class="content">
+      <ion-row class="content-row ion-flex-nowrap">
 
-      <div class="files">
-        <template x-for="file in $store.Files.items">
-          <div class="files__file" x-text="file.name" @click="$store.Files.pickFile(file)">
-          </div>
-        </template>
-      </div>
+        <ion-col size="3" class="files-col">
+          <ion-input
+            clear-input="false"
+            placeholder="🔎 Search"
+            fill="outline"
+            x-model="$store.Files.filterText"
+          >
+          </ion-input>
+          <ion-list class="files-list">
+            <template x-for="file in $store.Files.items">
+              <ion-item @click="$store.Files.pickFile(file)">
+                <ion-label x-text="file.name"></ion-label>
+              </ion-item>
+            </template>
+          </ion-list>
+        </ion-col>
 
-      <template x-if="$store.File.fileContent">
-        <div class="file">
-          <div class="container mt-2">
-            <div class="row">
-              <div class="col-md-6">
-                <textarea id="wysiwyg" x-model:value="$store.File.fileContent"></textarea>
-                <!-- <div x-text="$store.File.fileContent"></div> -->
-              </div>
+        <ion-col size="9" class="file-col">
+          <template x-if="$store.File.fileContent">
+            <div class="file">
+              <textarea id="wysiwyg" x-model:value="$store.File.fileContent"></textarea>
+              <!-- <div x-text="$store.File.fileContent"></div> -->
             </div>
-          </div>
-        </div>
-      </template>
-
-    </div>
+          </template>
+        </ion-col>
+        
+      </ion-row>
+    </ion-grid>
 
     <!-- Prompt Dialog -->
     <template x-if="$store.prompt?.showPrompt">

@@ -38,7 +38,8 @@ alp.store('Files', {
       files = await fs.readDir(this.selectedDirPath)
       // files = files.filter(file => file.name.includes('.txt') || file.name.includes('.html'))
       // files = files.filter(file => file.isDirectory)
-      files = files.filter(file => file.name.toLowerCase().includes(this.filterText))
+      const filterTextLowerCase = this.filterText?.toLowerCase?.()
+      files = files.filter(file => file.name.toLowerCase().includes(filterTextLowerCase))
       log(files)
     } catch (error) {
       log.error('readSelectedDir failed: ', error)
