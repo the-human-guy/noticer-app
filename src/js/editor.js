@@ -2,7 +2,9 @@ const editor_id = "wysiwyg"
 
 const $Editor = () => alp.store('Editor')
 alp.store('Editor', {
-  items: [],
+  getEditor() {
+    return tinymce.get(editor_id)
+  },
   initEditor() {
     log('init editor')
     tinymce.remove()
@@ -17,14 +19,17 @@ alp.store('Editor', {
       quickbars_selection_toolbar: 'bold italic | quicklink h2 h3 blockquote quickimage quicktable',
     }).then(() => {
       // add 'input' listener 
-      tinymce.get(editor_id).on('input', () => {
+      $Editor().getEditor().on('input', () => {
         // set textarea value = editor value
-        document.getElementById(editor_id).value = tinymce.get(editor_id).getContent();
+        document.getElementById(editor_id).value = tinymce.get(editor_id).getContent()
         // dispatch a native event for Alpine to recognize
-        document.getElementById(editor_id).dispatchEvent(new Event('input', { bubbles: true }));
+        document.getElementById(editor_id).dispatchEvent(new Event('input', { bubbles: true }))
       })
-    }); 
+    })
   },
+  save() {
+    return this.getEditor().save()
+  }
 })
 
 

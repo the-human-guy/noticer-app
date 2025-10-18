@@ -26,5 +26,8 @@ alp.store('File', {
     $File().openedFilePath = newPath
     $File().readSelectedFile()
   },
+  async save() {
+    await fs.writeTextFile($File().openedFilePath, $Editor().save())
+  }
 })
 

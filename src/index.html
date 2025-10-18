@@ -38,6 +38,9 @@
       <button x-show="$store.Files.selectedDirPath" @click="$store.Files.newDir()" title="new dir">
         📁➕
       </button>
+      <button x-show="$store.File.openedFilePath" @click="$store.File.save()" title="save" style="float: right;">
+        💾
+      </button>
       <p x-text="$store.Files.selectedDirPath"></p>
     </div>
 
