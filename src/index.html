@@ -43,6 +43,9 @@
         <span x-show="$store.File.saveSuccess">✅</span>
       </button>
       <p x-text="$store.Files.selectedDirPath"></p>
+      <div>
+        <input type="text" x-model="$store.Files.filterText">
+      </div>
     </div>
 
     <div class="content">

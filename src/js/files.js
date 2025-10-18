@@ -1,6 +1,14 @@
 const $Files = () => alp.store('Files')
 alp.store('Files', {
   items: [],
+  _filterText: '',
+  get filterText() {
+    return this._filterText
+  },
+  set filterText(newVal) {
+    this._filterText = newVal
+    this.readSelectedDir()
+  },
   init() {
     log(this.selectedDirPath)
     if (this.selectedDirPath) {
@@ -29,7 +37,8 @@ alp.store('Files', {
     try {
       files = await fs.readDir(this.selectedDirPath)
       // files = files.filter(file => file.name.includes('.txt') || file.name.includes('.html'))
-      files = files.filter(file => file.isDirectory)
+      // files = files.filter(file => file.isDirectory)
+      files = files.filter(file => file.name.toLowerCase().includes(this.filterText))
       log(files)
     } catch (error) {
       log.error('readSelectedDir failed: ', error)
