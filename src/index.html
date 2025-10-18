@@ -39,7 +39,8 @@
         📁➕
       </button>
       <button x-show="$store.File.openedFilePath" @click="$store.File.save()" title="save" style="float: right;">
-        💾
+        <span x-show="!$store.File.saveSuccess">💾</span>
+        <span x-show="$store.File.saveSuccess">✅</span>
       </button>
       <p x-text="$store.Files.selectedDirPath"></p>
     </div>
