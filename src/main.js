@@ -1,6 +1,6 @@
 // tauri
 const { invoke } = window.__TAURI__.core;
-const { dialog, fs } = window.__TAURI__;
+const { dialog, fs, opener } = window.__TAURI__;
 
 // alpine
 const alp = Alpine

@@ -32,19 +32,22 @@
   <div class="wrapper">
 
     <div id="header">
-      <ion-button fill="clear" x-bind:disabled="!$store.Files.selectedDirPath" @click="$store.Files.goBack()" title="back">
-        ⬅️
+      <ion-button size="small" fill="clear" x-bind:disabled="!$store.Files.selectedDirPath" @click="$store.Files.goBack()" title="back">
+        back
       </ion-button>
-      <ion-button fill="clear" @click="$store.Files.pickDir()" title="open">
-        📂
+      <ion-button size="small" fill="clear" @click="$store.Files.pickDir()" title="open">
+        open folder
       </ion-button>
-      <ion-button fill="clear" x-bind:disabled="!$store.Files.selectedDirPath" @click="$store.Files.newFile()" title="new file">
-        📄➕
+      <ion-button size="small" fill="clear" x-bind:disabled="!$store.Files.selectedDirPath" @click="$store.Files.newFile()" title="new file">
+        new file
       </ion-button>
-      <ion-button fill="clear" x-bind:disabled="!$store.Files.selectedDirPath" @click="$store.Files.newDir()" title="new dir">
-        📁➕
+      <ion-button size="small" fill="clear" x-bind:disabled="!$store.Files.selectedDirPath" @click="$store.Files.newDir()" title="new dir">
+        new folder
       </ion-button>
-      <ion-button fill="clear" x-bind:disabled="!$store.File.openedFilePath" @click="$store.File.save()" title="save" style="float: right;">
+      <ion-button size="small" fill="clear" x-bind:disabled="!$store.Files.selectedDirPath" @click="opener.openPath($store.Files.selectedDirPath)" title="open in file manager">
+        file manager
+      </ion-button>
+      <ion-button size="small" fill="clear" x-bind:disabled="!$store.File.openedFilePath" @click="$store.File.save()" title="save" style="float: right;">
         <span x-show="!$store.File.saveSuccess">💾</span>
         <span x-show="$store.File.saveSuccess">✅</span>
       </ion-button>
@@ -55,11 +58,11 @@
         <ion-breadcrumb href="#cameras">Cameras</ion-breadcrumb>
         <ion-breadcrumb href="#film">Film</ion-breadcrumb>
       </ion-breadcrumbs> -->
-      
+
       <div x-text="$store.Files.selectedDirPath"></div>
     </div>
 
-    <ion-grid class="content">
+    <ion-grid class="content" x-show="$store.Files.selectedDirPath">
       <ion-row class="content-row ion-flex-nowrap">
 
         <ion-col size="3" class="files-col">
@@ -87,7 +90,7 @@
             </div>
           </template>
         </ion-col>
-        
+
       </ion-row>
     </ion-grid>
 
