@@ -39,3 +39,8 @@ function isPathAllowed(allowedPaths, testPath) {
 
   return false;
 }
+
+
+function isAndroid() {
+  return navigator.userAgent?.toLowerCase?.()?.includes?.('android')
+}

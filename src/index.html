@@ -36,7 +36,7 @@
         back
       </ion-button>
       <ion-button size="small" fill="clear" @click="$store.Files.pickDir()" title="open">
-        open folder
+        open
       </ion-button>
       <ion-button size="small" fill="clear" x-bind:disabled="!$store.Files.selectedDirPath" @click="$store.Files.newFile()" title="new file">
         new file
@@ -62,14 +62,14 @@
       <div x-text="$store.Files.selectedDirPath"></div>
     </div>
 
-    <ion-grid class="content" x-show="$store.Files.selectedDirPath">
+    <ion-grid class="content" x-show="$store.Files.selectedDirPath && $store.Files.items.length">
       <ion-row class="content-row ion-flex-nowrap">
 
         <ion-col size="3" class="files-col">
           <ion-input
             clear-input="false"
             placeholder="🔎 Search"
-            fill="outline"
+            fill="none"
             x-model="$store.Files.filterText"
           >
           </ion-input>

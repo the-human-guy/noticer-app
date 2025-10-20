@@ -5,11 +5,15 @@
   "type": "module",
   "scripts": {
     "tauri": "tauri",
-    "android-init": "tauri android init",
-    "ios-init": "tauri ios init",
     "dev": "tauri dev",
+    "build": "tauri build",
+    "bundle": "tauri bundle",
+    "android-init": "tauri android init",
     "android-dev": "tauri android dev",
-    "ios-dev": "tauri ios dev"
+    "android-build": "tauri android build",
+    "ios-init": "tauri ios init",
+    "ios-dev": "tauri ios dev",
+    "ios-build": "tauri ios build"
   },
   "devDependencies": {
     "@tauri-apps/cli": "^2"

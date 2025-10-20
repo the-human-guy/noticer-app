@@ -11,6 +11,11 @@ alp.store('Files', {
   },
   init() {
     log(this.selectedDirPath)
+    if (!this.selectedDirPath && isAndroid()) {
+      // this.selectedDirPath = await __TAURI__.path.documentDir()
+      this.selectedDirPath = '/storage/emulated/0/Documents/noticer'
+      fs.mkdir(this.selectedDirPath)
+    }
     if (this.selectedDirPath) {
       this.readSelectedDir()
     }
@@ -21,15 +26,21 @@ alp.store('Files', {
     // picked by user through the dialog.
     // these paths have read permissions.
     // you can traverse down to nested dirs but not up.
-    const file = await dialog.open({
-      multiple: false,
-      directory: true,
-    })
-    log(file)
-    if (file) {
-      $Files().userSelectedPaths[file] = true
-      $Files().changeDir(file)
+
+    if (isAndroid()) {
+      log(file)
+    } else {
+      const file = await dialog.open({
+        multiple: false,
+        directory: true,
+      })
+      log(file)
+      if (file) {
+        $Files().userSelectedPaths[file] = true
+        $Files().changeDir(file)
+      }
     }
+
   },
   async readSelectedDir() {
     let files = []
@@ -49,6 +60,9 @@ alp.store('Files', {
     }
   },
   async changeDir(newPath) {
+    if (!newPath) {
+      return false
+    }
     $Files().selectedDirPath = newPath
     $Files().readSelectedDir()
   },
@@ -77,28 +91,26 @@ alp.store('Files', {
     }
   },
   async newFile() {
-    const path = await dialog.save({
-      filters: [
-        {
-          name: 'My Filter',
-          extensions: ['html'],
-        },
-      ],
-    })
-    log(path)
-    const file = await fs.create(path)
-    await file.write(new TextEncoder().encode(''))
-    await file.close()
-    $Files().readSelectedDir()
-    $File().changeFile(path)
+    const newFileName = await window.prompt('create file');
+    if (newFileName) {
+      const newFilePath = $Files().selectedDirPath + "/" + newFileName
+      log(newFileName)
+      const file = await fs.create(newFilePath)
+      await file.write(new TextEncoder().encode(''))
+      await file.close()
+      $Files().readSelectedDir()
+      $File().changeFile(newFilePath)
+    }
   },
   async newDir() {
     const newDirName = await window.prompt('Create directory');
-    const newDirPath = $Files().selectedDirPath + "/" + newDirName
-    log(newDirPath)
     if (newDirName) {
-      await fs.mkdir(newDirPath)
-      $Files().readSelectedDir()
+      const newDirPath = $Files().selectedDirPath + "/" + newDirName
+      log(newDirPath)
+      if (newDirName) {
+        await fs.mkdir(newDirPath)
+        $Files().readSelectedDir()
+      }
     }
   },
 })
