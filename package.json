@@ -4,7 +4,12 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "tauri": "tauri"
+    "tauri": "tauri",
+    "android-init": "tauri android init",
+    "ios-init": "tauri ios init",
+    "dev": "tauri dev",
+    "android-dev": "tauri android dev",
+    "ios-dev": "tauri ios dev"
   },
   "devDependencies": {
     "@tauri-apps/cli": "^2"
