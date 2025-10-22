@@ -70,7 +70,12 @@
           <ion-list class="files-list">
             <template x-for="file in $store.Files.items">
               <ion-item @click="$store.Files.pickFile(file)">
-                <ion-label x-text="file.name"></ion-label>
+                <ion-label class="ion-text-nowrap">
+                  <span class="ion-flex-shrink-0">
+                    <ion-icon style="vertical-align: text-bottom" size="small" x-show="file.isDirectory" name="folder-outline"></ion-icon>
+                  </span>
+                  <span x-text="file.name" class="ion-text-wrap"></span>
+                </ion-label>
               </ion-item>
             </template>
           </ion-list>
