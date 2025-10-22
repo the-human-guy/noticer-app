@@ -29,11 +29,14 @@
 </head>
 
 <body>
-  <div class="wrapper">
+  <div class="wrapper" x-data="{showFiles: true}">
     <div id="header">
       <ion-button size="small" fill="clear" x-bind:disabled="!$store.Files.selectedDirPath"
         @click="$store.Files.goBack()" title="back">
         back
+      </ion-button>
+      <ion-button size="small" fill="clear" @click="showFiles = !showFiles" title="files">
+        files
       </ion-button>
       <ion-button size="small" fill="clear" x-show="!isAndroid()" @click="$store.Files.pickDir()" title="open">
         open
@@ -59,8 +62,7 @@
 
     <ion-grid class="content" x-show="$store.Files.selectedDirPath && $store.Files.items.length">
       <ion-row class="content-row ion-flex-nowrap">
-
-        <ion-col size="3" class="files-col">
+        <ion-col size="3" x-show="showFiles" class="files-col">
           <ion-text x-text="$store.Files.selectedDirPath"></ion-text>
           <ion-input clear-input="false" placeholder="🔎 Search" fill="none" x-model="$store.Files.filterText">
           </ion-input>
@@ -73,7 +75,7 @@
           </ion-list>
         </ion-col>
 
-        <ion-col size="9" class="editor-col">
+        <ion-col class="editor-col">
           <template x-if="$store.File.fileContent">
             <div class="editor-container">
               <textarea id="wysiwyg" x-model:value="$store.File.fileContent"></textarea>
