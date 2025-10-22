@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Noticer</title>
   <link rel="stylesheet" href="styles.css" />
   <!-- Alpine Plugins -->
@@ -29,6 +29,7 @@
 </head>
 
 <body>
+  <ion-app>
   <div class="wrapper" x-data="{showFiles: true}">
     <div id="header">
       <ion-button size="small" fill="clear" x-bind:disabled="!$store.Files.selectedDirPath"
@@ -103,6 +104,7 @@
     </template>
 
   </div>
+  </ion-app>
 </body>
 
 </html>

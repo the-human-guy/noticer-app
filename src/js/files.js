@@ -31,7 +31,7 @@ alp.store('Files', {
     // you can traverse down to nested dirs but not up.
 
     if (isAndroid()) {
-      log(file)
+
     } else {
       const file = await dialog.open({
         multiple: false,
