@@ -30,48 +30,39 @@
 
 <body>
   <div class="wrapper">
-
     <div id="header">
-      <ion-button size="small" fill="clear" x-bind:disabled="!$store.Files.selectedDirPath" @click="$store.Files.goBack()" title="back">
+      <ion-button size="small" fill="clear" x-bind:disabled="!$store.Files.selectedDirPath"
+        @click="$store.Files.goBack()" title="back">
         back
       </ion-button>
-      <ion-button size="small" fill="clear" @click="$store.Files.pickDir()" title="open">
+      <ion-button size="small" fill="clear" x-show="!isAndroid()" @click="$store.Files.pickDir()" title="open">
         open
       </ion-button>
-      <ion-button size="small" fill="clear" x-bind:disabled="!$store.Files.selectedDirPath" @click="$store.Files.newFile()" title="new file">
+      <ion-button size="small" fill="clear" x-bind:disabled="!$store.Files.selectedDirPath"
+        @click="$store.Files.newFile()" title="new file">
         new file
       </ion-button>
-      <ion-button size="small" fill="clear" x-bind:disabled="!$store.Files.selectedDirPath" @click="$store.Files.newDir()" title="new dir">
+      <ion-button size="small" fill="clear" x-bind:disabled="!$store.Files.selectedDirPath"
+        @click="$store.Files.newDir()" title="new dir">
         new folder
       </ion-button>
-      <ion-button size="small" fill="clear" x-bind:disabled="!$store.Files.selectedDirPath" @click="opener.openPath($store.Files.selectedDirPath)" title="open in file manager">
+      <ion-button size="small" fill="clear" x-show="!isAndroid()" x-bind:disabled="!$store.Files.selectedDirPath"
+        @click="opener.openPath($store.Files.selectedDirPath)" title="open in file manager">
         file manager
       </ion-button>
-      <ion-button size="small" fill="clear" x-bind:disabled="!$store.File.openedFilePath" @click="$store.File.save()" title="save" style="float: right;">
+      <ion-button size="small" fill="clear" x-bind:disabled="!$store.File.openedFilePath" @click="$store.File.save()"
+        title="save" style="float: right;">
         <span x-show="!$store.File.saveSuccess">💾</span>
         <span x-show="$store.File.saveSuccess">✅</span>
       </ion-button>
-
-      <!-- <ion-breadcrumbs>
-        <ion-breadcrumb href="#home">Home</ion-breadcrumb>
-        <ion-breadcrumb href="#electronics">Electronics</ion-breadcrumb>
-        <ion-breadcrumb href="#cameras">Cameras</ion-breadcrumb>
-        <ion-breadcrumb href="#film">Film</ion-breadcrumb>
-      </ion-breadcrumbs> -->
-
-      <div x-text="$store.Files.selectedDirPath"></div>
     </div>
 
     <ion-grid class="content" x-show="$store.Files.selectedDirPath && $store.Files.items.length">
       <ion-row class="content-row ion-flex-nowrap">
 
         <ion-col size="3" class="files-col">
-          <ion-input
-            clear-input="false"
-            placeholder="🔎 Search"
-            fill="none"
-            x-model="$store.Files.filterText"
-          >
+          <ion-text x-text="$store.Files.selectedDirPath"></ion-text>
+          <ion-input clear-input="false" placeholder="🔎 Search" fill="none" x-model="$store.Files.filterText">
           </ion-input>
           <ion-list class="files-list">
             <template x-for="file in $store.Files.items">
@@ -99,8 +90,8 @@
       <div class="prompt-overlay">
         <div class="prompt-box">
           <div x-text="$store.prompt.promptMessage"></div>
-          <input x-model="$store.prompt.promptValue" @keyup.enter="$store.prompt.promptResolve($store.prompt.promptValue)"
-            class="prompt-input" type="text" />
+          <input x-model="$store.prompt.promptValue"
+            @keyup.enter="$store.prompt.promptResolve($store.prompt.promptValue)" class="prompt-input" type="text" />
           <div class="prompt-buttons">
             <button @click="$store.prompt.promptResolve($store.prompt.promptValue)">OK</button>
             <button @click="$store.prompt.promptReject()">Cancel</button>
