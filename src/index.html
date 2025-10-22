@@ -32,10 +32,6 @@
   <ion-app>
   <div class="wrapper" x-data="{showFiles: true}">
     <div id="header">
-      <ion-button size="small" fill="clear" color="dark" x-bind:disabled="!$store.Files.selectedDirPath"
-        @click="$store.Files.goBack()" title="back">
-        back
-      </ion-button>
       <ion-button size="small" fill="clear" color="dark" @click="showFiles = !showFiles" title="collapse files">
         collapse files
       </ion-button>

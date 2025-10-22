@@ -1,4 +1,5 @@
 const ANDROID_DIR_ROOT = '/storage/emulated/0/Documents/noticer'
+const PARENT_DIR_NAME = '../'
 
 const $Files = () => alp.store('Files')
 alp.store('Files', {
@@ -59,7 +60,10 @@ alp.store('Files', {
       log.error('readSelectedDir failed: ', error)
       files = []
     } finally {
-      $Files().items = files
+      $Files().items = [
+        { name: PARENT_DIR_NAME },
+        ...files
+      ]
     }
   },
   async changeDir(newPath) {
@@ -77,6 +81,9 @@ alp.store('Files', {
       isSymlink,
     } = file
     log(name)
+    if (name == PARENT_DIR_NAME) {
+      this.goBack()
+    }
     const filePath = $Files().selectedDirPath + "/" + name
 
     if (isDirectory) {
