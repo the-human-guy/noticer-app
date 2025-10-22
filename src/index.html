@@ -61,7 +61,7 @@
       </ion-button>
     </div>
 
-    <ion-grid class="content" x-show="$store.Files.selectedDirPath && $store.Files.items.length">
+    <ion-grid class="content" x-show="$store.Files.selectedDirPath">
       <ion-row class="content-row ion-flex-nowrap">
         <ion-col size="3" x-show="showFiles" class="files-col">
           <ion-text x-text="$store.Files.selectedDirPath"></ion-text>
