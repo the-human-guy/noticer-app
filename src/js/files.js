@@ -1,3 +1,5 @@
+const ANDROID_DIR_ROOT = '/storage/emulated/0/Documents/noticer'
+
 const $Files = () => alp.store('Files')
 alp.store('Files', {
   items: [],
@@ -12,15 +14,16 @@ alp.store('Files', {
   init() {
     log(this.selectedDirPath)
     if (!this.selectedDirPath && isAndroid()) {
-      // this.selectedDirPath = await __TAURI__.path.documentDir()
-      this.selectedDirPath = '/storage/emulated/0/Documents/noticer'
+      this.selectedDirPath = ANDROID_DIR_ROOT
       fs.mkdir(this.selectedDirPath)
     }
     if (this.selectedDirPath) {
       this.readSelectedDir()
     }
   },
-  userSelectedPaths: alp.$persist({}).as('userSelectedPaths'),
+  userSelectedPaths: alp.$persist({
+    [ANDROID_DIR_ROOT]: true,
+  }).as('userSelectedPaths'),
   selectedDirPath: alp.$persist('').as('selectedDirPath'),
   async pickDir() {
     // picked by user through the dialog.

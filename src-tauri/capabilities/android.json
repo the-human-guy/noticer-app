@@ -1,0 +1,74 @@
+{
+  "$schema": "../gen/schemas/android-schema.json",
+  "identifier": "android-capability",
+  "description": "Android-specific capability",
+  "windows": [
+    "main"
+  ],
+  "platforms": [
+    "android"
+  ],
+  "permissions": [
+    "core:default",
+    "fs:default",
+    {
+      "identifier": "fs:allow-read-dir",
+      "allow": [
+        {
+          "path": "$HOME/Documents/**/*"
+        }
+      ]
+    },    {
+      "identifier": "fs:allow-mkdir",
+      "allow": [
+        {
+          "path": "$HOME/Documents/**/*"
+        }
+      ]
+    },
+    {
+      "identifier": "fs:allow-write",
+      "allow": [
+        {
+          "path": "$HOME/Documents/**/*"
+        }
+      ]
+    },
+    {
+      "identifier": "fs:allow-write-file",
+      "allow": [
+        {
+          "path": "$HOME/Documents/**/*"
+        }
+      ]
+    },
+    {
+      "identifier": "fs:allow-create",
+      "allow": [
+        {
+          "path": "$HOME/Documents/**/*"
+        }
+      ]
+    },
+    {
+      "identifier": "fs:allow-read-text-file",
+      "allow": [
+        {
+          "path": "$HOME/Documents/**/*"
+        }
+      ]
+    },
+    {
+      "identifier": "fs:allow-write-text-file",
+      "allow": [
+        {
+          "path": "$HOME/Documents/**/*"
+        }
+      ]
+    },
+    "fs:allow-document-read-recursive",
+    "fs:allow-document-write-recursive",
+    "fs:create-app-specific-dirs",
+    "fs:allow-app-write-recursive"
+  ]
+}
