@@ -84,7 +84,6 @@
               <ion-content>
                 <ion-list>
                   <ion-item button detail="false" @click="$store.Files.deleteFileOrDir(contextMenuData.file)">Delete</ion-item>
-                  <ion-item button detail="false" @click="console.log('kekus')">Option 2</ion-item>
 
                   <!-- <ion-item button="true" id="nested-trigger">More options...</ion-item> -->
                   <!-- <ion-popover trigger="nested-trigger" dismiss-on-select="true" side="end">
@@ -160,7 +159,7 @@
         alert.header = header
         alert.subHeader = subheader
         alert.message = message
-        alert.inputs = inputs
+        alert.inputs = inputs || []
 
         return new Promise((res, rej) => {
           alert.addEventListener('ionAlertDidDismiss', function listenToDismiss(event) {
