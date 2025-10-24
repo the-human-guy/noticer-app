@@ -2,8 +2,10 @@ const ANDROID_DIR_ROOT = '/storage/emulated/0/Documents/noticer'
 const PARENT_DIR_NAME = '../'
 
 const $Files = () => alp.store('Files')
+
 alp.store('Files', {
   items: [],
+
   _filterText: '',
   get filterText() {
     return this._filterText
@@ -12,6 +14,7 @@ alp.store('Files', {
     this._filterText = newVal
     this.readSelectedDir()
   },
+
   init() {
     log(this.selectedDirPath)
     if (!this.selectedDirPath && isAndroid()) {
@@ -22,10 +25,13 @@ alp.store('Files', {
       this.readSelectedDir()
     }
   },
+
   userSelectedPaths: alp.$persist({
     [ANDROID_DIR_ROOT]: true,
   }).as('userSelectedPaths'),
+
   selectedDirPath: alp.$persist('').as('selectedDirPath'),
+
   async pickDir() {
     // picked by user through the dialog.
     // these paths have read permissions.
@@ -44,8 +50,8 @@ alp.store('Files', {
         $Files().changeDir(file)
       }
     }
-
   },
+
   async readSelectedDir() {
     let files = []
 
@@ -66,6 +72,7 @@ alp.store('Files', {
       ]
     }
   },
+
   async changeDir(newPath) {
     if (!newPath) {
       return false
@@ -73,6 +80,7 @@ alp.store('Files', {
     $Files().selectedDirPath = newPath
     $Files().readSelectedDir()
   },
+
   async pickFile(file) {
     const {
       name,
@@ -82,7 +90,7 @@ alp.store('Files', {
     } = file
     log(name)
     if (name == PARENT_DIR_NAME) {
-      this.goBack()
+      return this.goBack()
     }
     const filePath = $Files().selectedDirPath + "/" + name
 
@@ -94,12 +102,11 @@ alp.store('Files', {
   },
   goBack() {
     const newPath = $Files().selectedDirPath.split('/').slice(0, -1).join('/')
-    log(newPath)
     if (isPathAllowed($Files().userSelectedPaths, newPath)) {
-      log('isPathAllowed true')
       $Files().changeDir(newPath)
     }
   },
+
   async newFile() {
     const newFileName = await window.prompt('create file');
     if (newFileName) {
@@ -112,6 +119,7 @@ alp.store('Files', {
       $File().changeFile(newFilePath)
     }
   },
+
   async newDir() {
     const newDirName = await window.prompt('Create directory');
     if (newDirName) {
@@ -123,12 +131,16 @@ alp.store('Files', {
       }
     }
   },
+
   async deleteFileOrDir(fileOrDir) {
     if ((await ionAlert({
-      subheader: `Delete ${fileOrDir.name}?`,
+      message: `Are you sure you want to delete ${fileOrDir.name}?`,
     })).confirm) {
-      log('kekus')
+      await fs.remove($Files().selectedDirPath + '/' + fileOrDir.name, {
+        recursive: true,
+      })
+      $Files().readSelectedDir()
     }
-  }
+  },
 })
 
