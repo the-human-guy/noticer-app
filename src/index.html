@@ -151,6 +151,7 @@
         header,
         subheader,
         message,
+        inputs,
         buttons = defaultButtons,
       }) {
         const alert = $('ion-alert')
@@ -159,14 +160,32 @@
         alert.header = header
         alert.subHeader = subheader
         alert.message = message
+        alert.inputs = inputs
 
         return new Promise((res, rej) => {
           alert.addEventListener('ionAlertDidDismiss', function listenToDismiss(event) {
             alert.isOpen = false;
-            console.log(`Alert dismissed with role: ${event.detail.role}`)
             alert.removeEventListener('ionAlertDidDismiss', listenToDismiss)
-            res({ [event.detail.role]: true })
+            res({
+              roles: { [event.detail.role]: true },
+              values: event.detail.data?.values,
+              value: event.detail.data?.values?.[0],
+            })
           })
+        })
+      }
+
+      function ionPrompt({
+        ...args
+      }) {
+        return ionAlert({
+          buttons: args.buttons || ['OK'],
+          inputs: args.inputs || [
+            {
+              placeholder: '',
+            },
+          ],
+          ...args,
         })
       }
     </script>

@@ -108,7 +108,9 @@ alp.store('Files', {
   },
 
   async newFile() {
-    const newFileName = await window.prompt('create file');
+    // const newFileName = await window.prompt('create file');
+    const { value: newFileName } = await window.ionPrompt({ header: 'Create file' });
+
     if (newFileName) {
       const newFilePath = $Files().selectedDirPath + "/" + newFileName
       log(newFileName)
@@ -135,7 +137,7 @@ alp.store('Files', {
   async deleteFileOrDir(fileOrDir) {
     if ((await ionAlert({
       message: `Are you sure you want to delete ${fileOrDir.name}?`,
-    })).confirm) {
+    }))?.roles?.confirm) {
       await fs.remove($Files().selectedDirPath + '/' + fileOrDir.name, {
         recursive: true,
       })
