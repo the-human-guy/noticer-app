@@ -108,7 +108,6 @@ alp.store('Files', {
   },
 
   async newFile() {
-    // const newFileName = await window.prompt('create file');
     const { value: newFileName } = await window.ionPrompt({ header: 'Create file' });
 
     if (newFileName) {
@@ -123,7 +122,7 @@ alp.store('Files', {
   },
 
   async newDir() {
-    const newDirName = await window.prompt('Create directory');
+    const { value: newDirName } = await window.ionPrompt({ header: 'Create folder' });
     if (newDirName) {
       const newDirPath = $Files().selectedDirPath + "/" + newDirName
       log(newDirPath)
