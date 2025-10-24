@@ -20,6 +20,7 @@
   <script src="./js/files.js"></script>
   <script src="./js/file.js"></script>
   <script src="./js/editor.js"></script>
+  <script src="./js/contextMenu.js"></script>
 
   <!-- Ionic -->
   <script type="module" src="https://cdn.jsdelivr.net/npm/@ionic/core/dist/ionic/ionic.esm.js"></script>
@@ -28,12 +29,13 @@
 
 </head>
 
+
 <body>
   <ion-app>
-  <div class="wrapper" x-data="{showFiles: true}">
+  <div class="wrapper" x-data="{ showFiles: true }">
     <div id="header">
       <ion-button size="small" fill="clear" color="dark" @click="showFiles = !showFiles" title="collapse files">
-        collapse files
+        show files
       </ion-button>
       <ion-button size="small" fill="clear" color="dark" x-show="!isAndroid()" @click="$store.Files.pickDir()" title="open">
         open folder
@@ -56,14 +58,13 @@
         <span x-show="$store.File.saveSuccess">✅</span>
       </ion-button>
     </div>
-
     <ion-grid class="content" x-show="$store.Files.selectedDirPath">
       <ion-row class="content-row ion-flex-nowrap">
         <ion-col size="3" x-show="showFiles" class="files-col">
           <ion-text x-text="$store.Files.selectedDirPath"></ion-text>
           <ion-input clear-input="false" placeholder="🔎 Search" fill="none" x-model="$store.Files.filterText">
           </ion-input>
-          <ion-list class="files-list">
+          <ion-list x-data="contextMenu" class="files-list">
             <template x-for="file in $store.Files.items">
               <ion-item @click="$store.Files.pickFile(file)">
                 <ion-label class="ion-text-nowrap">
@@ -72,8 +73,30 @@
                   </span>
                   <span x-text="file.name" class="ion-text-wrap"></span>
                 </ion-label>
+                <ion-button slot="end" :id="'files-file-menu-button' + file.name" fill="clear" size="small" @click.stop="openMenu($event.target.id, $refs.contextMenuRef)">
+                  <ion-icon name="ellipsis-vertical" slot="icon-only"></ion-icon>
+                </ion-button>
               </ion-item>
             </template>
+
+            <!-- Files context menu  -->
+            <ion-popover x-ref="contextMenuRef" :trigger="contextMenuActiveItemId" dismiss-on-select="true" show-backdrop="false" :is-open="!!contextMenuActiveItemId">
+              <ion-content>
+                <ion-list>
+                  <ion-item button="true" detail="false">Option 1</ion-item>
+                  <ion-item button="true" detail="false">Option 2</ion-item>
+                  <ion-item button="true" id="nested-trigger">More options...</ion-item>
+
+                  <ion-popover trigger="nested-trigger" dismiss-on-select="true" side="end">
+                    <ion-content>
+                      <ion-list>
+                        <ion-item button="true" detail="false">Nested option</ion-item>
+                      </ion-list>
+                    </ion-content>
+                  </ion-popover>
+                </ion-list>
+              </ion-content>
+            </ion-popover>
           </ion-list>
         </ion-col>
 
