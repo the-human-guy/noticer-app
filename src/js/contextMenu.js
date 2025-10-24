@@ -2,9 +2,7 @@ Alpine.data('contextMenu', () => ({
   contextMenuActiveItemId: null,
   openMenu(elId, menu) {
     this.contextMenuActiveItemId = elId;
-    console.log(menu)
     menu.onDidDismiss().then(() => { this.contextMenuActiveItemId = false })
-    window.menus.push(menu)
   }
 }))
 
