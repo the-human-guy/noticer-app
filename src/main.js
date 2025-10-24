@@ -12,6 +12,10 @@ log.warn = console.warn
 log.info = console.info
 log.table = console.table
 
+// sane aliases
+window.$ = document.querySelector.bind(document)
+window.$$ = document.querySelectorAll.bind(document)
+
 
 // utils
 function isPathAllowed(allowedPaths, testPath) {

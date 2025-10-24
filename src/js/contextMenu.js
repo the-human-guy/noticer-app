@@ -1,8 +1,15 @@
 Alpine.data('contextMenu', () => ({
   contextMenuActiveItemId: null,
-  openMenu(elId, menu) {
+  contextMenuData: null,
+
+  openMenu(elId, menuRef, arbitraryData) {
     this.contextMenuActiveItemId = elId;
-    menu.onDidDismiss().then(() => { this.contextMenuActiveItemId = false })
+    this.contextMenuData = arbitraryData
+
+    menuRef.onDidDismiss().then(() => {
+      this.contextMenuActiveItemId = null
+      this.contextMenuData = null
+    })
   }
 }))
 

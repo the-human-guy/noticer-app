@@ -73,7 +73,7 @@
                   </span>
                   <span x-text="file.name" class="ion-text-wrap"></span>
                 </ion-label>
-                <ion-button slot="end" :id="'files-file-menu-button' + file.name" fill="clear" size="small" @click.stop="openMenu($event.target.id, $refs.contextMenuRef)">
+                <ion-button slot="end" :id="'files-file-menu-button' + file.name" fill="clear" size="small" @click.stop="openMenu($event.target.id, $refs.contextMenuRef, { file })">
                   <ion-icon name="ellipsis-vertical" slot="icon-only"></ion-icon>
                 </ion-button>
               </ion-item>
@@ -83,17 +83,17 @@
             <ion-popover x-ref="contextMenuRef" :trigger="contextMenuActiveItemId" dismiss-on-select="true" show-backdrop="false" :is-open="!!contextMenuActiveItemId">
               <ion-content>
                 <ion-list>
-                  <ion-item button="true" detail="false">Option 1</ion-item>
-                  <ion-item button="true" detail="false">Option 2</ion-item>
-                  <ion-item button="true" id="nested-trigger">More options...</ion-item>
+                  <ion-item button detail="false" @click="$store.Files.deleteFileOrDir(contextMenuData.file)">Delete</ion-item>
+                  <ion-item button detail="false" @click="console.log('kekus')">Option 2</ion-item>
 
-                  <ion-popover trigger="nested-trigger" dismiss-on-select="true" side="end">
+                  <!-- <ion-item button="true" id="nested-trigger">More options...</ion-item> -->
+                  <!-- <ion-popover trigger="nested-trigger" dismiss-on-select="true" side="end">
                     <ion-content>
                       <ion-list>
                         <ion-item button="true" detail="false">Nested option</ion-item>
                       </ion-list>
                     </ion-content>
-                  </ion-popover>
+                  </ion-popover> -->
                 </ion-list>
               </ion-content>
             </ion-popover>
@@ -126,6 +126,50 @@
         </div>
       </div>
     </template>
+
+    <!-- Alert -->
+    <ion-alert header="Alert!"></ion-alert>
+    <script>
+      const defaultButtons = [
+        {
+          text: 'Cancel',
+          role: 'cancel',
+          handler: () => {
+            console.log('Alert canceled')
+          },
+        },
+        {
+          text: 'OK',
+          role: 'confirm',
+          handler: () => {
+            console.log('Alert confirmed')
+          },
+        },
+      ]
+
+      function ionAlert({
+        header,
+        subheader,
+        message,
+        buttons = defaultButtons,
+      }) {
+        const alert = $('ion-alert')
+        alert.isOpen = true
+        alert.buttons = buttons
+        alert.header = header
+        alert.subHeader = subheader
+        alert.message = message
+
+        return new Promise((res, rej) => {
+          alert.addEventListener('ionAlertDidDismiss', function listenToDismiss(event) {
+            alert.isOpen = false;
+            console.log(`Alert dismissed with role: ${event.detail.role}`)
+            alert.removeEventListener('ionAlertDidDismiss', listenToDismiss)
+            res({ [event.detail.role]: true })
+          })
+        })
+      }
+    </script>
 
   </div>
   </ion-app>

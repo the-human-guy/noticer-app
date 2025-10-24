@@ -123,5 +123,12 @@ alp.store('Files', {
       }
     }
   },
+  async deleteFileOrDir(fileOrDir) {
+    if ((await ionAlert({
+      subheader: `Delete ${fileOrDir.name}?`,
+    })).confirm) {
+      log('kekus')
+    }
+  }
 })
 
