@@ -37,18 +37,14 @@ alp.store('Files', {
     // these paths have read permissions.
     // you can traverse down to nested dirs but not up.
 
-    if (isAndroid()) {
-
-    } else {
-      const file = await dialog.open({
-        multiple: false,
-        directory: true,
-      })
-      log(file)
-      if (file) {
-        $Files().userSelectedPaths[file] = true
-        $Files().changeDir(file)
-      }
+    const file = await dialog.open({
+      multiple: false,
+      directory: true,
+    })
+    log(file)
+    if (file) {
+      $Files().userSelectedPaths[file] = true
+      $Files().changeDir(file)
     }
   },
 
