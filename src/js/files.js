@@ -32,6 +32,8 @@ alp.store('Files', {
 
   selectedDirPath: alp.$persist('').as('selectedDirPath'),
 
+  androidDirUriObj: alp.$persist('').as('androidDirUriObj'),
+
   async pickDir() {
     // picked by user through the dialog.
     // these paths have read permissions.
@@ -47,7 +49,8 @@ alp.store('Files', {
       await AndroidFS.persistUriPermission(URIObj)
       if (uri) {
         $Files().userSelectedPaths[uri] = true
-        $Files().changeDir(URIObj)
+        $Files().androidDirUriObj = JSON.stringify(URIObj)
+        $Files().changeDir(uri)
       }
     } else {
       const uri = await dialog.open({
@@ -67,7 +70,7 @@ alp.store('Files', {
 
     try {
       if (isAndroid()) {
-        files = await AndroidFS.readDir(this.selectedDirPath)
+        files = await AndroidFS.readDir(JSON.parse($Files().androidDirUriObj))
         log('readSelectedDir android files: ', files)
       } else {
         files = await fs.readDir(this.selectedDirPath)
@@ -102,12 +105,14 @@ alp.store('Files', {
       isDirectory,
       isFile,
       isSymlink,
+      // AndroidFS
+      uri, // { uri: "content://..." , documentTopTreeUri: "content://.." }
     } = file
     log(name)
     if (name == PARENT_DIR_NAME) {
       return this.goBack()
     }
-    const filePath = $Files().selectedDirPath + "/" + name
+    const filePath = isAndroid() ? uri?.uri : $Files().selectedDirPath + "/" + name
 
     if (isDirectory) {
       $Files().changeDir(filePath)

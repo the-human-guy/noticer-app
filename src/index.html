@@ -62,7 +62,7 @@
     <ion-grid class="content" x-show="$store.Files.selectedDirPath">
       <ion-row class="content-row ion-flex-nowrap">
         <ion-col size="3" x-show="showFiles" class="files-col">
-          <ion-text x-text="$store.Files.selectedDirPath"></ion-text>
+          <ion-text x-show="!isAndroid()" x-text="$store.Files.selectedDirPath"></ion-text>
           <ion-input clear-input="false" placeholder="🔎 Search" fill="none" x-model="$store.Files.filterText">
           </ion-input>
           <ion-list x-data="contextMenu" class="files-list">
