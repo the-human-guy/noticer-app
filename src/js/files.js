@@ -38,16 +38,26 @@ alp.store('Files', {
     // you can traverse down to nested dirs but not up.
 
     if (isAndroid()) {
-
+      const URIObj = await AndroidFS.showOpenDirPicker()
+      if (!URIObj) {
+        return null
+      }
+      const { uri } = URIObj
+      log('pickDir android uri: ', uri)
+      await AndroidFS.persistUriPermission(URIObj)
+      if (uri) {
+        $Files().userSelectedPaths[uri] = true
+        $Files().changeDir(URIObj)
+      }
     } else {
-      const file = await dialog.open({
+      const uri = await dialog.open({
         multiple: false,
         directory: true,
       })
-      log(file)
-      if (file) {
-        $Files().userSelectedPaths[file] = true
-        $Files().changeDir(file)
+      log(uri)
+      if (uri) {
+        $Files().userSelectedPaths[uri] = true
+        $Files().changeDir(uri)
       }
     }
   },
@@ -56,7 +66,12 @@ alp.store('Files', {
     let files = []
 
     try {
-      files = await fs.readDir(this.selectedDirPath)
+      if (isAndroid()) {
+        files = await AndroidFS.readDir(this.selectedDirPath)
+        log('readSelectedDir android files: ', files)
+      } else {
+        files = await fs.readDir(this.selectedDirPath)
+      }
       // files = files.filter(file => file.name.includes('.txt') || file.name.includes('.html'))
       // files = files.filter(file => file.isDirectory)
       const filterTextLowerCase = this.filterText?.toLowerCase?.()

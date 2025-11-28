@@ -16,6 +16,7 @@
   <script src="./public/tinymce/tinymce.min.js" referrerpolicy="origin"></script>
 
   <script src="./main.js"></script>
+  <script src="./js/plugin-android-fs.js"></script>
   <script src="./js/prompt.js"></script>
   <script src="./js/files.js"></script>
   <script src="./js/file.js"></script>
@@ -37,7 +38,7 @@
       <ion-button size="small" fill="clear" color="dark" @click="showFiles = !showFiles" title="collapse files">
         show files
       </ion-button>
-      <ion-button size="small" fill="clear" color="dark" x-show="!isAndroid()" @click="$store.Files.pickDir()" title="open">
+      <ion-button size="small" fill="clear" color="dark" @click="$store.Files.pickDir()" title="open">
         open folder
       </ion-button>
       <ion-button size="small" fill="clear" color="dark" x-bind:disabled="!$store.Files.selectedDirPath"
