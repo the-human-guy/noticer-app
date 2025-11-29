@@ -32,7 +32,17 @@ alp.store('Files', {
 
   selectedDirPath: alp.$persist('').as('selectedDirPath'),
 
-  androidDirUriObj: alp.$persist('').as('androidDirUriObj'),
+  _androidDirUriObj: alp.$persist('').as('_androidDirUriObj'),
+  getAndroidDirUriObj() {
+    return typeof this._androidDirUriObj === 'string'
+      ? JSON.parse(this._androidDirUriObj)
+      : this._androidDirUriObj
+  },
+  setAndroidDirUriObj(newAndroidDirUriObj) {
+    this._androidDirUriObj = typeof newAndroidDirUriObj === 'string'
+      ? newAndroidDirUriObj
+      : JSON.stringify(newAndroidDirUriObj)
+  },
 
   async pickDir() {
     // picked by user through the dialog.
@@ -49,7 +59,7 @@ alp.store('Files', {
       await AndroidFS.persistUriPermission(URIObj)
       if (uri) {
         $Files().userSelectedPaths[uri] = true
-        $Files().androidDirUriObj = JSON.stringify(URIObj)
+        $Files().setAndroidDirUriObj(JSON.stringify(URIObj))
         $Files().changeDir(uri)
       }
     } else {
@@ -70,7 +80,7 @@ alp.store('Files', {
 
     try {
       if (isAndroid()) {
-        files = await AndroidFS.readDir(JSON.parse($Files().androidDirUriObj))
+        files = await AndroidFS.readDir($Files().getAndroidDirUriObj())
         log('readSelectedDir android files: ', files)
       } else {
         files = await fs.readDir(this.selectedDirPath)
@@ -131,11 +141,16 @@ alp.store('Files', {
     const { value: newFileName } = await window.ionPrompt({ header: 'Create file' });
 
     if (newFileName) {
-      const newFilePath = $Files().selectedDirPath + "/" + newFileName
+      const { selectedDirPath, } = $Files()
+      const newFilePath = selectedDirPath + "/" + newFileName
       log(newFileName)
-      const file = await fs.create(newFilePath)
-      await file.write(new TextEncoder().encode(''))
-      await file.close()
+      if (isAndroid()) {
+        const fileURI = await AndroidFs.createNewFile($Files().getAndroidDirUriObj(), newFileName)
+      } else {
+        const file = await fs.create(newFilePath)
+        await file.write(new TextEncoder().encode(''))
+        await file.close()
+      }
       $Files().readSelectedDir()
       $File().changeFile(newFilePath)
     }
