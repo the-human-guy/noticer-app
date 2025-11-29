@@ -146,13 +146,15 @@ alp.store('Files', {
       log(newFileName)
       if (isAndroid()) {
         const fileURI = await AndroidFs.createNewFile($Files().getAndroidDirUriObj(), newFileName)
+        $Files().readSelectedDir()
+        $File().changeFile(fileURI.uri)
       } else {
         const file = await fs.create(newFilePath)
         await file.write(new TextEncoder().encode(''))
         await file.close()
+        $Files().readSelectedDir()
+        $File().changeFile(newFilePath)
       }
-      $Files().readSelectedDir()
-      $File().changeFile(newFilePath)
     }
   },
 
