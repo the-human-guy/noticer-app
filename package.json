@@ -11,6 +11,8 @@
     "android-init": "tauri android init",
     "android-dev": "tauri android dev",
     "android-build": "tauri android build",
+    "android-build-install": "npm run android-build && adb install src-tauri/gen/android/app/build/outputs/apk/universal/release/app-universal-release.apk",
+    "android-unstuck-emulator": "rm $(find ~/.android/avd/ -iname \"*.lock*\")",
     "ios-init": "tauri ios init",
     "ios-dev": "tauri ios dev",
     "ios-build": "tauri ios build"

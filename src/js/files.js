@@ -174,9 +174,13 @@ alp.store('Files', {
     if ((await ionAlert({
       message: `Are you sure you want to delete ${fileOrDir.name}?`,
     }))?.roles?.confirm) {
-      await fs.remove($Files().selectedDirPath + '/' + fileOrDir.name, {
-        recursive: true,
-      })
+      if (isAndroid()) {
+        await AndroidFs.removeFile($Files().getAndroidDirUriObj().uri + '/' + fileOrDir.name)
+      } else {
+        await fs.remove($Files().selectedDirPath + '/' + fileOrDir.name, {
+          recursive: true,
+        })
+      }
       $Files().readSelectedDir()
     }
   },
