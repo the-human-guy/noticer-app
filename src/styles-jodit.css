@@ -1,0 +1,36 @@
+.editor-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.jodit-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  flex-grow: 1;
+}
+
+.jodit-toolbar__box,
+.jodit-status-bar {
+  flex-shrink: 0;
+}
+
+.jodit-workplace {
+  flex-grow: 1;
+}
+
+.ntcr-jodit-spoiler__details {
+  background-color: #f6f6f6;
+  border-radius: 7px;
+  width: fit-content;
+  overflow: hidden;
+}
+
+.ntcr-jodit-spoiler__summary {
+  padding: 7px;
+  background-color: #ebebeb;
+}
+
+.ntcr-jodit-spoiler__content {
+  padding: 7px;
+}

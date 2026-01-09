@@ -87,6 +87,11 @@ button {
   background-color: #f6f6f6;
 }
 
+* {
+  box-sizing: border-box;
+  overscroll-behavior: none;
+}
+
 /* tinyMCE promotion button */
 .tox-promotion {
   display: none;
@@ -173,3 +178,4 @@ button {
   gap: 0.5rem;
   justify-content: flex-end;
 }
+

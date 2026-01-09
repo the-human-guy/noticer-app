@@ -10,6 +10,7 @@ alp.store('Editor', {
     tinymce.remove()
     tinymce.init({
       selector: '#' + editor_id,
+      content_css: '/styles-tinymce.css',
       license_key: 'gpl',
       plugins: 'preview importcss searchreplace autolink autosave save directionality code visualblocks visualchars fullscreen image link media codesample table charmap pagebreak nonbreaking anchor insertdatetime advlist lists wordcount help charmap quickbars emoticons accordion',
       menubar: 'file edit view insert format tools table help',
@@ -19,7 +20,7 @@ alp.store('Editor', {
       height: "100%",
       quickbars_selection_toolbar: 'bold italic | quicklink h2 h3 blockquote quickimage quicktable',
     }).then(() => {
-      // add 'input' listener 
+      // add 'input' listener
       $Editor().getEditor().on('input', () => {
         // set textarea value = editor value
         document.getElementById(editor_id).value = tinymce.get(editor_id).getContent()
@@ -28,7 +29,7 @@ alp.store('Editor', {
       })
     })
   },
-  save() {
+  getValue() {
     return this.getEditor().save()
   }
 })

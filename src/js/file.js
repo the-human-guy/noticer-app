@@ -41,7 +41,7 @@ alp.store('File', {
   },
 
   async save() {
-    await fs.writeTextFile($File().openedFilePath, $Editor().save())
+    await fs.writeTextFile($File().openedFilePath, $Editor().getValue())
     $File().indicateSuccessfulSave()
   },
 

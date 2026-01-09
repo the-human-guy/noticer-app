@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Noticer</title>
   <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="styles-jodit.css" />
   <!-- Alpine Plugins -->
   <script src="https://cdn.jsdelivr.net/npm/@alpinejs/persist@3.x.x/dist/cdn.min.js"></script>
 
@@ -15,12 +16,18 @@
   <!-- TinyMCE -->
   <script src="./public/tinymce/tinymce.min.js" referrerpolicy="origin"></script>
 
+  <!-- Jodit -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jodit@latest/es2021/jodit.fat.min.css" />
+  <script src="https://cdn.jsdelivr.net/npm/jodit@latest/es2021/jodit.fat.min.js"></script>
+
+  <!-- App -->
   <script src="./main.js"></script>
   <script src="./js/plugin-android-fs.js"></script>
   <script src="./js/prompt.js"></script>
   <script src="./js/files.js"></script>
   <script src="./js/file.js"></script>
-  <script src="./js/editor.js"></script>
+  <!-- <script src="./js/editor-tinymce.js"></script> -->
+  <script src="./js/editor-jodit.js"></script>
   <script src="./js/contextMenu.js"></script>
 
   <!-- Ionic -->
@@ -103,7 +110,13 @@
         <ion-col class="editor-col">
           <template x-if="$store.File.fileContent">
             <div class="editor-container">
+              <!-- TinyMCE -->
               <textarea id="wysiwyg" x-model:value="$store.File.fileContent"></textarea>
+
+              <!-- Jodit -->
+              <textarea id="jodit-editor" x-model:value="$store.File.fileContent"></textarea>
+
+              <!-- debug file source view -->
               <!-- <div x-text="$store.File.fileContent"></div> -->
             </div>
           </template>
