@@ -114,7 +114,9 @@
               <textarea id="wysiwyg" x-model:value="$store.File.fileContent"></textarea>
 
               <!-- Jodit -->
-              <textarea id="jodit-editor" x-model:value="$store.File.fileContent"></textarea>
+              <ion-content>
+                <textarea id="jodit-editor" autofocus="false" x-model:value="$store.File.fileContent"></textarea>
+              </ion-content>
 
               <!-- debug file source view -->
               <!-- <div x-text="$store.File.fileContent"></div> -->

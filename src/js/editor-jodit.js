@@ -28,8 +28,8 @@ alp.store('Editor', {
         "insertImageAsBase64URI": true
       },
       "toolbarButtonSize": "small",
-      // "enter": "DIV",
-      "enter": "BR",
+      "enter": "DIV",
+      // "enter": "BR",
       // "showCharsCounter": false,
       // "showWordsCounter": false,
       "showXPathInStatusbar": false,
@@ -39,6 +39,8 @@ alp.store('Editor', {
       "toolbarInlineForSelection": true,
       "showPlaceholder": false,
       extraButtons: ['spoiler'],
+      disablePlugins: ['autofocus'],
+      autofocus: false,
       // "buttons": "bold,|,italic,underline,strikethrough,eraser,ul,ol,font,fontsize,paragraph,lineHeight,superscript,subscript,classSpan,file,image,video,spellcheck,spoiler"
     })
     window.editor = this.editor
@@ -49,3 +51,34 @@ alp.store('Editor', {
 })
 
 
+dropEventListeners()
+// In your main JS (e.g., React/Vue/Svelte component or plain script)
+function updateViewport() {
+  if (window.visualViewport) {
+    const vh = window.visualViewport.height;
+    document.documentElement.style.setProperty('--vh', `${vh}px`);
+    console.log('Visual viewport height:', vh); // Debug in DevTools
+
+    document.documentElement.style.setProperty('--top', `${window.visualViewport.offsetTop}px`);
+
+    // Optional: Auto-scroll focused element
+    editor.editorWindow.getSelection().anchorNode.scrollIntoViewIfNeeded({ behaviour: "smooth", block: "end" })
+  }
+}
+
+// Listen to changes
+window.visualViewport?.addEventListener('resize', updateViewport);
+window.visualViewport?.addEventListener('scroll', updateViewport); // Sometimes needed for offset changes
+window.addEventListener('resize', updateViewport); // Fallback
+
+// Initial call + on focus
+updateViewport();
+document.addEventListener('focusin', updateViewport);
+
+
+function dropEventListeners() {
+  window.visualViewport?.removeEventListener('resize', updateViewport);
+  window.visualViewport?.removeEventListener('scroll', updateViewport);
+  window.removeEventListener('resize', updateViewport);
+  document.removeEventListener('focusin', updateViewport);
+}

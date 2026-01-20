@@ -34,3 +34,31 @@
 .ntcr-jodit-spoiler__content {
   padding: 7px;
 }
+
+.jodit-wysiwyg {
+  padding-bottom: 30rem !important;
+}
+
+:root {
+  --vh: 100vh;
+  --top: 0;
+}
+
+html,
+body {
+  height: var(--vh) !important;
+}
+
+html {
+  transform: translateY(var(--top)) !important;
+}
+
+.wrapper {
+  padding-bottom: 0 !important;
+}
+
+.jodit-toolbar__box {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
