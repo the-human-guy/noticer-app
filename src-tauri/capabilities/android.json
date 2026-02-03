@@ -11,6 +11,7 @@
   "permissions": [
     "core:default",
     "fs:default",
+    "android-fs:all-without-delete",
     {
       "identifier": "fs:allow-read-dir",
       "allow": [

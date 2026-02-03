@@ -32,22 +32,45 @@ alp.store('Files', {
 
   selectedDirPath: alp.$persist('').as('selectedDirPath'),
 
+  _androidDirUriObj: alp.$persist('').as('_androidDirUriObj'),
+  getAndroidDirUriObj() {
+    return typeof this._androidDirUriObj === 'string'
+      ? JSON.parse(this._androidDirUriObj)
+      : this._androidDirUriObj
+  },
+  setAndroidDirUriObj(newAndroidDirUriObj) {
+    this._androidDirUriObj = typeof newAndroidDirUriObj === 'string'
+      ? newAndroidDirUriObj
+      : JSON.stringify(newAndroidDirUriObj)
+  },
+
   async pickDir() {
     // picked by user through the dialog.
     // these paths have read permissions.
     // you can traverse down to nested dirs but not up.
 
     if (isAndroid()) {
-
+      const URIObj = await AndroidFS.showOpenDirPicker()
+      if (!URIObj) {
+        return null
+      }
+      const { uri } = URIObj
+      log('pickDir android uri: ', uri)
+      await AndroidFS.persistUriPermission(URIObj)
+      if (uri) {
+        $Files().userSelectedPaths[uri] = true
+        $Files().setAndroidDirUriObj(JSON.stringify(URIObj))
+        $Files().changeDir(uri)
+      }
     } else {
-      const file = await dialog.open({
+      const uri = await dialog.open({
         multiple: false,
         directory: true,
       })
-      log(file)
-      if (file) {
-        $Files().userSelectedPaths[file] = true
-        $Files().changeDir(file)
+      log(uri)
+      if (uri) {
+        $Files().userSelectedPaths[uri] = true
+        $Files().changeDir(uri)
       }
     }
   },
@@ -56,7 +79,12 @@ alp.store('Files', {
     let files = []
 
     try {
-      files = await fs.readDir(this.selectedDirPath)
+      if (isAndroid()) {
+        files = await AndroidFS.readDir($Files().getAndroidDirUriObj())
+        log('readSelectedDir android files: ', files)
+      } else {
+        files = await fs.readDir(this.selectedDirPath)
+      }
       // files = files.filter(file => file.name.includes('.txt') || file.name.includes('.html'))
       // files = files.filter(file => file.isDirectory)
       const filterTextLowerCase = this.filterText?.toLowerCase?.()
@@ -87,12 +115,14 @@ alp.store('Files', {
       isDirectory,
       isFile,
       isSymlink,
+      // AndroidFS
+      uri, // { uri: "content://..." , documentTopTreeUri: "content://.." }
     } = file
     log(name)
     if (name == PARENT_DIR_NAME) {
       return this.goBack()
     }
-    const filePath = $Files().selectedDirPath + "/" + name
+    const filePath = isAndroid() ? uri?.uri : $Files().selectedDirPath + "/" + name
 
     if (isDirectory) {
       $Files().changeDir(filePath)
@@ -111,13 +141,20 @@ alp.store('Files', {
     const { value: newFileName } = await window.ionPrompt({ header: 'Create file' });
 
     if (newFileName) {
-      const newFilePath = $Files().selectedDirPath + "/" + newFileName
+      const { selectedDirPath, } = $Files()
+      const newFilePath = selectedDirPath + "/" + newFileName
       log(newFileName)
-      const file = await fs.create(newFilePath)
-      await file.write(new TextEncoder().encode(''))
-      await file.close()
-      $Files().readSelectedDir()
-      $File().changeFile(newFilePath)
+      if (isAndroid()) {
+        const fileURI = await AndroidFs.createNewFile($Files().getAndroidDirUriObj(), newFileName)
+        $Files().readSelectedDir()
+        $File().changeFile(fileURI.uri)
+      } else {
+        const file = await fs.create(newFilePath)
+        await file.write(new TextEncoder().encode(''))
+        await file.close()
+        $Files().readSelectedDir()
+        $File().changeFile(newFilePath)
+      }
     }
   },
 
@@ -137,9 +174,13 @@ alp.store('Files', {
     if ((await ionAlert({
       message: `Are you sure you want to delete ${fileOrDir.name}?`,
     }))?.roles?.confirm) {
-      await fs.remove($Files().selectedDirPath + '/' + fileOrDir.name, {
-        recursive: true,
-      })
+      if (isAndroid()) {
+        await AndroidFs.removeFile($Files().getAndroidDirUriObj().uri + '/' + fileOrDir.name)
+      } else {
+        await fs.remove($Files().selectedDirPath + '/' + fileOrDir.name, {
+          recursive: true,
+        })
+      }
       $Files().readSelectedDir()
     }
   },

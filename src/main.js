@@ -45,6 +45,6 @@ function isPathAllowed(allowedPaths, testPath) {
 }
 
 
-function isAndroid() {
-  return navigator.userAgent?.toLowerCase?.()?.includes?.('android')
-}
+// function isAndroid() {
+//   return navigator.userAgent?.toLowerCase?.()?.includes?.('android')
+// }

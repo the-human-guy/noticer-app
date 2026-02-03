@@ -31,9 +31,7 @@ Alpine.data('contextMenu', () => ({
     show-backdrop="false"
     :is-open="!!contextMenuActiveItemId"
   >
-    <ion-content>
 
-    </ion-content>
   </ion-popover>
 
 */

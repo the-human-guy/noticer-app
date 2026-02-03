@@ -87,10 +87,19 @@ button {
   background-color: #f6f6f6;
 }
 
-/* tinyMCE promotion button */
-.tox-promotion {
-  display: none;
+* {
+  box-sizing: border-box;
+  overscroll-behavior: none;
 }
+/*
+html,
+body {
+  height: 100%;
+  overflow: hidden;
+  position: fixed;
+  width: 100%;
+} */
+
 
 .wrapper {
   max-height: 100%;
@@ -173,3 +182,4 @@ button {
   gap: 0.5rem;
   justify-content: flex-end;
 }
+
