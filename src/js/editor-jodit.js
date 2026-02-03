@@ -13,7 +13,7 @@ alp.store('Editor', {
       exec: editor => {
         editor.s.insertHTML(`
           <details class="ntcr-jodit-spoiler__details">
-            <summary class="ntcr-jodit-spoiler__summary">Click me!</summary>
+            <summary contenteditable="false" class="ntcr-jodit-spoiler__summary">Click me!</summary>
             <div class="ntcr-jodit-spoiler__content">
               Spoiler
             </div>
@@ -63,7 +63,12 @@ function updateViewport() {
     document.documentElement.style.setProperty('--top', `${window.visualViewport.offsetTop}px`);
 
     // Optional: Auto-scroll focused element
-    editor.editorWindow.getSelection().anchorNode.scrollIntoViewIfNeeded({ behaviour: "smooth", block: "end" })
+    const selectedNode = editor.editorWindow.getSelection().anchorNode
+    if (selectedNode.scrollIntoViewIfNeeded) {
+      selectedNode.scrollIntoViewIfNeeded({ behaviour: "smooth", block: "end" })
+    } else {
+      selectedNode.parentNode.scrollIntoViewIfNeeded({ behaviour: "smooth", block: "end" })
+    }
   }
 }
 
