@@ -24,6 +24,7 @@ alp.store('Editor', {
 
     this.editor?.destruct()
     this.editor = Jodit.make('#jodit-editor', {
+      mobileTapTimeout: 500,
       "uploader": {
         "insertImageAsBase64URI": true
       },
