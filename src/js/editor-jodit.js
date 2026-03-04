@@ -4,10 +4,17 @@ alp.store('settings', {
   updateVh: alp.$persist(true).as('settings.updateVh'),
   updateViewportOffset: alp.$persist(true).as('settings.updateViewportOffset'),
   scrollIntoView: alp.$persist(true).as('settings.scrollIntoView'),
-  triggerVvResize: alp.$persist(true).as('settings.triggerVvResize'),
-  triggerVvScroll: alp.$persist(true).as('settings.triggerVvScroll'),
-  triggerWinResize: alp.$persist(true).as('settings.triggerWinResize'),
-  triggerDocFocusin: alp.$persist(true).as('settings.triggerDocFocusin'),
+
+  vpTriggerVvResize: alp.$persist(true).as('settings.vpTriggerVvResize'),
+  vpTriggerVvScroll: alp.$persist(true).as('settings.vpTriggerVvScroll'),
+  vpTriggerWinResize: alp.$persist(true).as('settings.vpTriggerWinResize'),
+  vpTriggerDocFocusin: alp.$persist(true).as('settings.vpTriggerDocFocusin'),
+
+  sivTriggerVvResize: alp.$persist(false).as('settings.sivTriggerVvResize'),
+  sivTriggerVvScroll: alp.$persist(false).as('settings.sivTriggerVvScroll'),
+  sivTriggerWinResize: alp.$persist(false).as('settings.sivTriggerWinResize'),
+  sivTriggerDocFocusin: alp.$persist(true).as('settings.sivTriggerDocFocusin'),
+
   showLogs: alp.$persist(false).as('settings.showLogs'),
 })
 
@@ -63,7 +70,7 @@ alp.store('Editor', {
 })
 
 
-function updateViewport() {
+function updateViewportVars() {
   if (!window.visualViewport) return
   const root = document.documentElement.style
   const s = alp.store('settings')
@@ -75,32 +82,42 @@ function updateViewport() {
   if (s.updateViewportOffset) {
     root.setProperty('--viewport-offset', `${window.visualViewport.offsetTop}px`)
   }
-
-  if (s.scrollIntoView) {
-    try {
-      const selectedNode = editor?.editorWindow?.getSelection()?.anchorNode
-      if (!selectedNode) return
-      const el = selectedNode.nodeType === 1 ? selectedNode : selectedNode.parentNode
-      el?.scrollIntoViewIfNeeded?.({ behaviour: 'smooth', block: 'end' })
-    } catch (_) {}
-  }
 }
 
-function dropEventListeners() {
-  window.visualViewport?.removeEventListener('resize', updateViewport)
-  window.visualViewport?.removeEventListener('scroll', updateViewport)
-  window.removeEventListener('resize', updateViewport)
-  document.removeEventListener('focusin', updateViewport)
+function scrollEditorIntoView() {
+  if (!alp.store('settings').scrollIntoView) return
+  try {
+    const selectedNode = editor?.editorWindow?.getSelection()?.anchorNode
+    if (!selectedNode) return
+    const el = selectedNode.nodeType === 1 ? selectedNode : selectedNode.parentNode
+    el?.scrollIntoViewIfNeeded?.({ behaviour: 'smooth', block: 'end' })
+  } catch (_) {}
+}
+
+function dropAllListeners() {
+  ;[updateViewportVars, scrollEditorIntoView].forEach(fn => {
+    window.visualViewport?.removeEventListener('resize', fn)
+    window.visualViewport?.removeEventListener('scroll', fn)
+    window.removeEventListener('resize', fn)
+    document.removeEventListener('focusin', fn)
+  })
 }
 
 function registerListeners() {
-  dropEventListeners()
+  dropAllListeners()
   const s = alp.store('settings')
-  if (s.triggerVvResize)   window.visualViewport?.addEventListener('resize', updateViewport)
-  if (s.triggerVvScroll)   window.visualViewport?.addEventListener('scroll', updateViewport)
-  if (s.triggerWinResize)  window.addEventListener('resize', updateViewport)
-  if (s.triggerDocFocusin) document.addEventListener('focusin', updateViewport)
-  updateViewport()
+
+  if (s.vpTriggerVvResize)   window.visualViewport?.addEventListener('resize', updateViewportVars)
+  if (s.vpTriggerVvScroll)   window.visualViewport?.addEventListener('scroll', updateViewportVars)
+  if (s.vpTriggerWinResize)  window.addEventListener('resize', updateViewportVars)
+  if (s.vpTriggerDocFocusin) document.addEventListener('focusin', updateViewportVars)
+
+  if (s.sivTriggerVvResize)   window.visualViewport?.addEventListener('resize', scrollEditorIntoView)
+  if (s.sivTriggerVvScroll)   window.visualViewport?.addEventListener('scroll', scrollEditorIntoView)
+  if (s.sivTriggerWinResize)  window.addEventListener('resize', scrollEditorIntoView)
+  if (s.sivTriggerDocFocusin) document.addEventListener('focusin', scrollEditorIntoView)
+
+  updateViewportVars()
 }
 
 window.reregisterViewportListeners = registerListeners
