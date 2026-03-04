@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content">
   <title>Noticer</title>
 
   <!-- Bootstrap Icons -->
@@ -25,6 +25,7 @@
 
   <!-- App -->
   <script src="./main.js"></script>
+  <script src="./js/log.js"></script>
   <script src="./js/plugin-android-fs.js"></script>
   <script src="./js/prompt.js"></script>
   <script src="./js/files.js"></script>
@@ -62,6 +63,16 @@
       <button class="btn btn--icon" :disabled="!$store.File.openedFilePath"
         @click="$store.File.save()" title="Save">
         <i class="bi" :class="$store.File.saveSuccess ? 'bi-check-circle-fill text--success' : 'bi-floppy'"></i>
+      </button>
+      <button class="btn btn--icon" x-show="$store.settings.showLogs"
+        @click="$dispatch('open-logs')" title="Logs">
+        <i class="bi bi-terminal"></i>
+        <span x-show="$store.logs.entries.length"
+          x-text="$store.logs.entries.length"
+          class="log-badge"></span>
+      </button>
+      <button class="btn btn--icon" @click="$dispatch('open-settings')" title="Settings">
+        <i class="bi bi-gear"></i>
       </button>
     </div>
   </header>
@@ -137,6 +148,107 @@
       </div>
     </div>
   </template>
+
+  <!-- Settings Modal -->
+  <div x-data="{ open: false, draft: {} }"
+    @open-settings.window="
+      draft = { ...$store.settings };
+      open = true
+    "
+    x-show="open" style="display:none">
+    <div class="dialog-overlay" @click.self="open = false">
+      <div class="dialog">
+        <div class="dialog__title">Settings</div>
+
+        <div class="settings-section">
+          <div class="settings-section__heading">Viewport — what to update</div>
+          <label class="settings-check">
+            <input type="checkbox" x-model="draft.updateVh">
+            <span>Update <code>--vh</code></span>
+          </label>
+          <label class="settings-check">
+            <input type="checkbox" x-model="draft.updateViewportOffset">
+            <span>Update <code>--viewport-offset</code> (soft keyboard fix)</span>
+          </label>
+          <label class="settings-check">
+            <input type="checkbox" x-model="draft.scrollIntoView">
+            <span>Scroll caret into view</span>
+          </label>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-section__heading">Logs</div>
+          <label class="settings-check">
+            <input type="checkbox" x-model="draft.showLogs">
+            <span>Capture and show app logs</span>
+          </label>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-section__heading">Viewport — when to trigger</div>
+          <label class="settings-check">
+            <input type="checkbox" x-model="draft.triggerVvResize">
+            <span><code>visualViewport</code> resize</span>
+          </label>
+          <label class="settings-check">
+            <input type="checkbox" x-model="draft.triggerVvScroll">
+            <span><code>visualViewport</code> scroll</span>
+          </label>
+          <label class="settings-check">
+            <input type="checkbox" x-model="draft.triggerWinResize">
+            <span><code>window</code> resize</span>
+          </label>
+          <label class="settings-check">
+            <input type="checkbox" x-model="draft.triggerDocFocusin">
+            <span><code>document</code> focusin</span>
+          </label>
+        </div>
+
+        <div class="dialog__actions">
+          <button class="btn" @click="open = false">Cancel</button>
+          <button class="btn btn--primary" @click="
+            Object.assign($store.settings, draft);
+            window.reregisterViewportListeners();
+            open = false
+          ">Save</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Logs Modal -->
+  <div x-data="{ open: false }"
+    @open-logs.window="open = true"
+    x-show="open" style="display:none">
+    <div class="dialog-overlay" @click.self="open = false">
+      <div class="dialog dialog--logs">
+        <div class="logs-header">
+          <span class="dialog__title">Logs</span>
+          <div class="logs-header__actions">
+            <button class="btn btn--sm" @click="$store.logs.clear()" title="Clear">
+              <i class="bi bi-trash"></i> Clear
+            </button>
+            <button class="btn btn--icon" @click="open = false" title="Close">
+              <i class="bi bi-x-lg"></i>
+            </button>
+          </div>
+        </div>
+        <div class="logs-body" x-ref="logsBody"
+          x-effect="$store.logs.entries.length && $nextTick(() => $refs.logsBody.scrollTop = $refs.logsBody.scrollHeight)">
+          <template x-if="!$store.logs.entries.length">
+            <p class="logs-empty">No logs yet.</p>
+          </template>
+          <template x-for="entry in $store.logs.entries" :key="entry.id">
+            <div class="log-entry" :class="'log-entry--' + entry.level">
+              <span class="log-entry__time" x-text="entry.time"></span>
+              <span class="log-entry__level" x-text="entry.level"></span>
+              <pre class="log-entry__text" x-text="entry.text"></pre>
+            </div>
+          </template>
+        </div>
+      </div>
+    </div>
+  </div>
 
 </body>
 

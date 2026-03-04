@@ -3,7 +3,7 @@
    ======================================== */
 .jodit-toolbar__box {
   position: sticky !important;
-  top: calc(var(--header-height, 48px) + env(safe-area-inset-top, 0px)) !important;
+  top: calc(var(--header-height, 48px) + env(safe-area-inset-top, 0px) + var(--viewport-offset, 0px)) !important;
   z-index: 50;
 }
 

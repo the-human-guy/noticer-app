@@ -117,7 +117,7 @@ body {
    ======================================== */
 .header {
   position: fixed;
-  top: 0;
+  top: var(--viewport-offset, 0px);
   left: 0;
   right: 0;
   height: calc(var(--header-height) + env(safe-area-inset-top, 0px));
@@ -383,6 +383,171 @@ body {
   gap: 8px;
   justify-content: flex-end;
 }
+
+
+/* ========================================
+   Settings
+   ======================================== */
+.settings-section {
+  margin-bottom: 20px;
+}
+
+.settings-section__heading {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-muted);
+  margin-bottom: 6px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.settings-check {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.settings-check input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  accent-color: var(--color-primary);
+  cursor: pointer;
+}
+
+.settings-check code {
+  font-size: 12px;
+  background: var(--color-bg);
+  padding: 1px 5px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+}
+
+.settings-check + .dialog__actions {
+  margin-top: 16px;
+}
+
+
+/* ========================================
+   Log badge (header button)
+   ======================================== */
+.btn--icon {
+  position: relative;
+}
+
+.log-badge {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  background: var(--color-danger);
+  color: #fff;
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 1;
+  padding: 2px 4px;
+  border-radius: 99px;
+  pointer-events: none;
+}
+
+
+/* ========================================
+   Logs Modal
+   ======================================== */
+.dialog--logs {
+  width: min(720px, calc(100vw - 24px));
+  max-height: calc(100vh - 48px);
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  overflow: hidden;
+}
+
+.logs-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--color-border);
+  flex-shrink: 0;
+}
+
+.logs-header .dialog__title {
+  margin: 0;
+}
+
+.logs-header__actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.logs-body {
+  flex: 1;
+  overflow-y: auto;
+  font-family: ui-monospace, "Cascadia Code", "Source Code Pro", Menlo, monospace;
+  font-size: 12px;
+  background: #1e1e1e;
+  color: #d4d4d4;
+  padding: 8px 0;
+  min-height: 0;
+}
+
+.logs-empty {
+  padding: 16px;
+  color: #6c757d;
+  font-family: inherit;
+}
+
+.log-entry {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 3px 12px;
+  border-bottom: 1px solid #2a2a2a;
+  line-height: 1.5;
+}
+
+.log-entry:hover {
+  background: #2a2a2a;
+}
+
+.log-entry__time {
+  color: #6a9955;
+  flex-shrink: 0;
+  font-size: 11px;
+}
+
+.log-entry__level {
+  flex-shrink: 0;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  width: 36px;
+}
+
+.log-entry__text {
+  flex: 1;
+  white-space: pre-wrap;
+  word-break: break-all;
+  margin: 0;
+  font-family: inherit;
+  font-size: inherit;
+}
+
+.log-entry--log   .log-entry__level { color: #9cdcfe; }
+.log-entry--info  .log-entry__level { color: #4fc1ff; }
+.log-entry--warn  { background: #2a2200; }
+.log-entry--warn  .log-entry__level { color: #dcdcaa; }
+.log-entry--warn  .log-entry__text  { color: #dcdcaa; }
+.log-entry--error { background: #2a0000; }
+.log-entry--error .log-entry__level { color: #f44747; }
+.log-entry--error .log-entry__text  { color: #f44747; }
+.log-entry--table .log-entry__level { color: #c586c0; }
 
 
 /* ========================================

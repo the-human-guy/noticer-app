@@ -1,5 +1,16 @@
 const editor_id = "wysiwyg"
 
+alp.store('settings', {
+  updateVh: alp.$persist(true).as('settings.updateVh'),
+  updateViewportOffset: alp.$persist(true).as('settings.updateViewportOffset'),
+  scrollIntoView: alp.$persist(true).as('settings.scrollIntoView'),
+  triggerVvResize: alp.$persist(true).as('settings.triggerVvResize'),
+  triggerVvScroll: alp.$persist(true).as('settings.triggerVvScroll'),
+  triggerWinResize: alp.$persist(true).as('settings.triggerWinResize'),
+  triggerDocFocusin: alp.$persist(true).as('settings.triggerDocFocusin'),
+  showLogs: alp.$persist(false).as('settings.showLogs'),
+})
+
 const $Editor = () => alp.store('Editor')
 alp.store('Editor', {
   getEditor() {
@@ -52,37 +63,46 @@ alp.store('Editor', {
 })
 
 
-dropEventListeners()
-// In your main JS (e.g., React/Vue/Svelte component or plain script)
 function updateViewport() {
-  if (window.visualViewport) {
-    const vh = window.visualViewport.height;
-    document.documentElement.style.setProperty('--vh', `${vh}px`);
-    console.log('Visual viewport height:', vh); // Debug in DevTools
+  if (!window.visualViewport) return
+  const root = document.documentElement.style
+  const s = alp.store('settings')
 
-    // Optional: Auto-scroll focused element
-    const selectedNode = editor.editorWindow.getSelection().anchorNode
-    if (selectedNode.scrollIntoViewIfNeeded) {
-      selectedNode.scrollIntoViewIfNeeded({ behaviour: "smooth", block: "end" })
-    } else {
-      selectedNode.parentNode.scrollIntoViewIfNeeded({ behaviour: "smooth", block: "end" })
-    }
+  if (s.updateVh) {
+    root.setProperty('--vh', `${window.visualViewport.height}px`)
+  }
+
+  if (s.updateViewportOffset) {
+    root.setProperty('--viewport-offset', `${window.visualViewport.offsetTop}px`)
+  }
+
+  if (s.scrollIntoView) {
+    try {
+      const selectedNode = editor?.editorWindow?.getSelection()?.anchorNode
+      if (!selectedNode) return
+      const el = selectedNode.nodeType === 1 ? selectedNode : selectedNode.parentNode
+      el?.scrollIntoViewIfNeeded?.({ behaviour: 'smooth', block: 'end' })
+    } catch (_) {}
   }
 }
 
-// Listen to changes
-window.visualViewport?.addEventListener('resize', updateViewport);
-window.visualViewport?.addEventListener('scroll', updateViewport); // Sometimes needed for offset changes
-window.addEventListener('resize', updateViewport); // Fallback
-
-// Initial call + on focus
-updateViewport();
-document.addEventListener('focusin', updateViewport);
-
-
 function dropEventListeners() {
-  window.visualViewport?.removeEventListener('resize', updateViewport);
-  window.visualViewport?.removeEventListener('scroll', updateViewport);
-  window.removeEventListener('resize', updateViewport);
-  document.removeEventListener('focusin', updateViewport);
+  window.visualViewport?.removeEventListener('resize', updateViewport)
+  window.visualViewport?.removeEventListener('scroll', updateViewport)
+  window.removeEventListener('resize', updateViewport)
+  document.removeEventListener('focusin', updateViewport)
 }
+
+function registerListeners() {
+  dropEventListeners()
+  const s = alp.store('settings')
+  if (s.triggerVvResize)   window.visualViewport?.addEventListener('resize', updateViewport)
+  if (s.triggerVvScroll)   window.visualViewport?.addEventListener('scroll', updateViewport)
+  if (s.triggerWinResize)  window.addEventListener('resize', updateViewport)
+  if (s.triggerDocFocusin) document.addEventListener('focusin', updateViewport)
+  updateViewport()
+}
+
+window.reregisterViewportListeners = registerListeners
+
+registerListeners()
