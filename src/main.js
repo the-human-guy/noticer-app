@@ -5,13 +5,6 @@ const { dialog, fs, opener } = window.__TAURI__;
 // alpine
 const alp = Alpine
 
-// logger
-window.log = console.log
-log.error = console.error
-log.warn = console.warn
-log.info = console.info
-log.table = console.table
-
 // sane aliases
 window.$ = document.querySelector.bind(document)
 window.$$ = document.querySelectorAll.bind(document)
