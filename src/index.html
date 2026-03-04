@@ -12,6 +12,13 @@
   <!-- Styles -->
   <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="styles-jodit.css" />
+</head>
+
+
+<body
+  x-data="{ sidebarOpen: false }"
+  x-init="$watch('$store.Files?.selectedDirPath', val => { if (val) sidebarOpen = true })"
+>
 
   <!-- Alpine Plugins -->
   <script src="https://cdn.jsdelivr.net/npm/@alpinejs/persist@3.x.x/dist/cdn.min.js"></script>
@@ -31,11 +38,8 @@
   <script src="./js/files.js"></script>
   <script src="./js/file.js"></script>
   <script src="./js/editor-jodit.js"></script>
-</head>
 
 
-<body x-data="{ sidebarOpen: false }"
-  x-init="$watch('$store.Files.selectedDirPath', val => { if (val) sidebarOpen = true })">
 
   <!-- Header -->
   <header class="header">
@@ -161,22 +165,6 @@
         <div class="dialog__title">Settings</div>
 
         <div class="settings-section">
-          <div class="settings-section__heading">Viewport — what to update</div>
-          <label class="settings-check">
-            <input type="checkbox" x-model="draft.updateVh">
-            <span>Update <code>--vh</code></span>
-          </label>
-          <label class="settings-check">
-            <input type="checkbox" x-model="draft.updateViewportOffset">
-            <span>Update <code>--viewport-offset</code> (soft keyboard fix)</span>
-          </label>
-          <label class="settings-check">
-            <input type="checkbox" x-model="draft.scrollIntoView">
-            <span>Scroll caret into view</span>
-          </label>
-        </div>
-
-        <div class="settings-section">
           <div class="settings-section__heading">Logs</div>
           <label class="settings-check">
             <input type="checkbox" x-model="draft.showLogs">
@@ -185,21 +173,55 @@
         </div>
 
         <div class="settings-section">
-          <div class="settings-section__heading">Viewport — when to trigger</div>
+          <div class="settings-section__heading">Viewport variables</div>
           <label class="settings-check">
-            <input type="checkbox" x-model="draft.triggerVvResize">
+            <input type="checkbox" x-model="draft.updateVh">
+            <span>Update <code>--vh</code></span>
+          </label>
+          <label class="settings-check">
+            <input type="checkbox" x-model="draft.updateViewportOffset">
+            <span>Update <code>--viewport-offset</code> (soft keyboard fix)</span>
+          </label>
+          <div class="settings-subsection">Trigger on:</div>
+          <label class="settings-check">
+            <input type="checkbox" x-model="draft.vpTriggerVvResize">
             <span><code>visualViewport</code> resize</span>
           </label>
           <label class="settings-check">
-            <input type="checkbox" x-model="draft.triggerVvScroll">
+            <input type="checkbox" x-model="draft.vpTriggerVvScroll">
             <span><code>visualViewport</code> scroll</span>
           </label>
           <label class="settings-check">
-            <input type="checkbox" x-model="draft.triggerWinResize">
+            <input type="checkbox" x-model="draft.vpTriggerWinResize">
             <span><code>window</code> resize</span>
           </label>
           <label class="settings-check">
-            <input type="checkbox" x-model="draft.triggerDocFocusin">
+            <input type="checkbox" x-model="draft.vpTriggerDocFocusin">
+            <span><code>document</code> focusin</span>
+          </label>
+        </div>
+
+        <div class="settings-section">
+          <div class="settings-section__heading">Scroll caret into view</div>
+          <label class="settings-check">
+            <input type="checkbox" x-model="draft.scrollIntoView">
+            <span>Enabled</span>
+          </label>
+          <div class="settings-subsection">Trigger on:</div>
+          <label class="settings-check">
+            <input type="checkbox" x-model="draft.sivTriggerVvResize">
+            <span><code>visualViewport</code> resize</span>
+          </label>
+          <label class="settings-check">
+            <input type="checkbox" x-model="draft.sivTriggerVvScroll">
+            <span><code>visualViewport</code> scroll</span>
+          </label>
+          <label class="settings-check">
+            <input type="checkbox" x-model="draft.sivTriggerWinResize">
+            <span><code>window</code> resize</span>
+          </label>
+          <label class="settings-check">
+            <input type="checkbox" x-model="draft.sivTriggerDocFocusin">
             <span><code>document</code> focusin</span>
           </label>
         </div>

@@ -3,7 +3,7 @@ alp.store('logs', {
   entries: [],
 
   push(level, args) {
-    if (!alp.store('settings').showLogs) return
+    if (!alp.store('settings')?.showLogs) return
     this.entries.push({
       id: Date.now() + Math.random(),
       level,
