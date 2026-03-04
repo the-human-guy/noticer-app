@@ -60,8 +60,6 @@ function updateViewport() {
     document.documentElement.style.setProperty('--vh', `${vh}px`);
     console.log('Visual viewport height:', vh); // Debug in DevTools
 
-    document.documentElement.style.setProperty('--top', `${window.visualViewport.offsetTop}px`);
-
     // Optional: Auto-scroll focused element
     const selectedNode = editor.editorWindow.getSelection().anchorNode
     if (selectedNode.scrollIntoViewIfNeeded) {

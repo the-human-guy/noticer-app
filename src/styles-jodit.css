@@ -1,24 +1,22 @@
-.editor-container {
-  display: flex;
-  flex-direction: column;
+/* ========================================
+   Jodit: Toolbar sticky below header
+   ======================================== */
+.jodit-toolbar__box {
+  position: sticky !important;
+  top: calc(var(--header-height, 48px) + env(safe-area-inset-top, 0px)) !important;
+  z-index: 50;
 }
 
-.jodit-container {
-  display: flex;
-  flex-direction: column;
-  height: 100% !important;
-  flex-grow: 1;
+/* ========================================
+   Jodit: Extra bottom padding for editing comfort
+   ======================================== */
+.jodit-wysiwyg {
+  padding-bottom: 30rem !important;
 }
 
-.jodit-toolbar__box,
-.jodit-status-bar {
-  flex-shrink: 0;
-}
-
-.jodit-workplace {
-  flex-grow: 1;
-}
-
+/* ========================================
+   Jodit: Spoiler plugin
+   ======================================== */
 .ntcr-jodit-spoiler__details {
   background-color: #f6f6f6;
   border-radius: 7px;
@@ -35,30 +33,9 @@
   padding: 7px;
 }
 
-.jodit-wysiwyg {
-  padding-bottom: 30rem !important;
-}
-
+/* ========================================
+   Android viewport handling
+   ======================================== */
 :root {
   --vh: 100vh;
-  --top: 0;
-}
-
-html,
-body {
-  height: var(--vh) !important;
-}
-
-html {
-  transform: translateY(var(--top)) !important;
-}
-
-.wrapper {
-  padding-bottom: 0 !important;
-}
-
-.jodit-toolbar__box {
-  position: sticky;
-  top: 0;
-  z-index: 2;
 }

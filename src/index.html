@@ -5,8 +5,14 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Noticer</title>
+
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+  <!-- Styles -->
   <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="styles-jodit.css" />
+
   <!-- Alpine Plugins -->
   <script src="https://cdn.jsdelivr.net/npm/@alpinejs/persist@3.x.x/dist/cdn.min.js"></script>
 
@@ -24,182 +30,114 @@
   <script src="./js/files.js"></script>
   <script src="./js/file.js"></script>
   <script src="./js/editor-jodit.js"></script>
-  <script src="./js/contextMenu.js"></script>
-
-  <!-- Ionic -->
-  <script type="module" src="https://cdn.jsdelivr.net/npm/@ionic/core/dist/ionic/ionic.esm.js"></script>
-  <script nomodule src="https://cdn.jsdelivr.net/npm/@ionic/core/dist/ionic/ionic.js"></script>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@ionic/core/css/ionic.bundle.css" />
-
 </head>
 
 
-<body>
-  <ion-app>
-  <div class="wrapper" x-data="{ showFiles: true }">
-    <div id="header">
-      <ion-button size="small" fill="clear" color="dark" @click="showFiles = !showFiles" title="collapse files">
-        show files
-      </ion-button>
-      <ion-button size="small" fill="clear" color="dark" @click="$store.Files.pickDir()" title="open">
-        open folder
-      </ion-button>
-      <ion-button size="small" fill="clear" color="dark" x-bind:disabled="!$store.Files.selectedDirPath"
-        @click="$store.Files.newFile()" title="new file">
-        new file
-      </ion-button>
-      <ion-button size="small" fill="clear" color="dark" x-bind:disabled="!$store.Files.selectedDirPath"
-        @click="$store.Files.newDir()" title="new dir">
-        new folder
-      </ion-button>
-      <ion-button size="small" fill="clear" color="dark" x-show="!isAndroid()" x-bind:disabled="!$store.Files.selectedDirPath"
-        @click="opener.openPath($store.Files.selectedDirPath)" title="open in file manager">
-        file manager
-      </ion-button>
-      <ion-button size="small" fill="clear" color="dark" x-bind:disabled="!$store.File.openedFilePath" @click="$store.File.save()"
-        title="save" style="float: right;">
-        <span x-show="!$store.File.saveSuccess">💾</span>
-        <span x-show="$store.File.saveSuccess">✅</span>
-      </ion-button>
+<body x-data="{ sidebarOpen: false }"
+  x-init="$watch('$store.Files.selectedDirPath', val => { if (val) sidebarOpen = true })">
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header__left">
+      <button class="btn btn--icon" @click="sidebarOpen = !sidebarOpen" title="Toggle files">
+        <i class="bi bi-list"></i>
+      </button>
+      <button class="btn btn--icon" @click="$store.Files.pickDir()" title="Open folder">
+        <i class="bi bi-folder2-open"></i>
+      </button>
+      <button class="btn btn--icon" :disabled="!$store.Files.selectedDirPath"
+        @click="$store.Files.newFile()" title="New file">
+        <i class="bi bi-file-earmark-plus"></i>
+      </button>
+      <button class="btn btn--icon" :disabled="!$store.Files.selectedDirPath"
+        @click="$store.Files.newDir()" title="New folder">
+        <i class="bi bi-folder-plus"></i>
+      </button>
+      <button class="btn btn--icon" x-show="!isAndroid()" :disabled="!$store.Files.selectedDirPath"
+        @click="opener.openPath($store.Files.selectedDirPath)" title="Open in file manager">
+        <i class="bi bi-box-arrow-up-right"></i>
+      </button>
     </div>
-    <ion-grid class="content" x-show="$store.Files.selectedDirPath">
-      <ion-row class="content-row ion-flex-nowrap">
-        <ion-col size="3" x-show="showFiles" class="files-col">
-          <ion-text x-show="!isAndroid()" x-text="$store.Files.selectedDirPath"></ion-text>
-          <ion-input clear-input="false" placeholder="🔎 Search" fill="none" x-model="$store.Files.filterText">
-          </ion-input>
-          <ion-list x-data="contextMenu" class="files-list">
-            <template x-for="file in $store.Files.items">
-              <ion-item @click="$store.Files.pickFile(file)">
-                <ion-label class="ion-text-nowrap">
-                  <span class="ion-flex-shrink-0">
-                    <ion-icon style="vertical-align: text-bottom" size="small" x-show="file.isDirectory" name="folder-outline"></ion-icon>
-                  </span>
-                  <span x-text="file.name" class="ion-text-wrap"></span>
-                </ion-label>
-                <ion-button slot="end" :id="'files-file-menu-button' + file.name" fill="clear" size="small" @click.stop="openMenu($event.target.id, $refs.contextMenuRef, { file })">
-                  <ion-icon name="ellipsis-vertical" slot="icon-only"></ion-icon>
-                </ion-button>
-              </ion-item>
-            </template>
+    <div class="header__right">
+      <button class="btn btn--icon" :disabled="!$store.File.openedFilePath"
+        @click="$store.File.save()" title="Save">
+        <i class="bi" :class="$store.File.saveSuccess ? 'bi-check-circle-fill text--success' : 'bi-floppy'"></i>
+      </button>
+    </div>
+  </header>
 
-            <!-- Files context menu  -->
-            <ion-popover x-ref="contextMenuRef" :trigger="contextMenuActiveItemId" dismiss-on-select="true" show-backdrop="false" :is-open="!!contextMenuActiveItemId">
-              <ion-content>
-                <ion-list>
-                  <ion-item button detail="false" @click="$store.Files.deleteFileOrDir(contextMenuData.file)">Delete</ion-item>
+  <!-- Sidebar Backdrop -->
+  <div class="sidebar-backdrop" :class="{ 'is-visible': sidebarOpen }" @click="sidebarOpen = false"></div>
 
-                  <!-- <ion-item button="true" id="nested-trigger">More options...</ion-item> -->
-                  <!-- <ion-popover trigger="nested-trigger" dismiss-on-select="true" side="end">
-                    <ion-content>
-                      <ion-list>
-                        <ion-item button="true" detail="false">Nested option</ion-item>
-                      </ion-list>
-                    </ion-content>
-                  </ion-popover> -->
-                </ion-list>
-              </ion-content>
-            </ion-popover>
-          </ion-list>
-        </ion-col>
-
-        <ion-col class="editor-col">
-          <template x-if="$store.File.fileContent">
-            <div class="editor-container">
-              <!-- Jodit -->
-              <ion-content>
-                <textarea id="jodit-editor" autofocus="false" x-model:value="$store.File.fileContent"></textarea>
-              </ion-content>
-
-              <!-- debug file source view -->
-              <!-- <div x-text="$store.File.fileContent"></div> -->
-            </div>
-          </template>
-        </ion-col>
-
-      </ion-row>
-    </ion-grid>
-
-    <!-- Prompt Dialog -->
-    <template x-if="$store.prompt?.showPrompt">
-      <div class="prompt-overlay">
-        <div class="prompt-box">
-          <div x-text="$store.prompt.promptMessage"></div>
-          <input x-model="$store.prompt.promptValue"
-            @keyup.enter="$store.prompt.promptResolve($store.prompt.promptValue)" class="prompt-input" type="text" />
-          <div class="prompt-buttons">
-            <button @click="$store.prompt.promptResolve($store.prompt.promptValue)">OK</button>
-            <button @click="$store.prompt.promptReject()">Cancel</button>
+  <!-- Sidebar -->
+  <aside class="sidebar" :class="{ 'is-open': sidebarOpen }">
+    <div class="sidebar__header">
+      <span class="sidebar__path" x-show="!isAndroid()" x-text="$store.Files.selectedDirPath"></span>
+      <div class="sidebar__search">
+        <i class="bi bi-search"></i>
+        <input type="text" class="sidebar__search-input" placeholder="Search..."
+          x-model="$store.Files.filterText">
+      </div>
+    </div>
+    <ul class="file-list" x-data="{ openMenuId: null }">
+      <template x-for="file in $store.Files.items" :key="file.name">
+        <li class="file-item" @click="$store.Files.pickFile(file)">
+          <span class="file-item__icon">
+            <i class="bi" :class="file.isDirectory ? 'bi-folder-fill' : 'bi-file-earmark-text'"></i>
+          </span>
+          <span class="file-item__name" x-text="file.name"></span>
+          <button class="btn btn--icon btn--sm file-item__menu-btn"
+            @click.stop="openMenuId = openMenuId === file.name ? null : file.name">
+            <i class="bi bi-three-dots-vertical"></i>
+          </button>
+          <div class="context-menu" x-show="openMenuId === file.name"
+            @click.outside="openMenuId = null" x-transition.opacity>
+            <button class="context-menu__item"
+              @click.stop="$store.Files.deleteFileOrDir(file); openMenuId = null">
+              <i class="bi bi-trash"></i> Delete
+            </button>
           </div>
+        </li>
+      </template>
+    </ul>
+  </aside>
+
+  <!-- Editor -->
+  <template x-if="$store.File.fileContent">
+    <div>
+      <textarea id="jodit-editor" x-model:value="$store.File.fileContent"></textarea>
+    </div>
+  </template>
+
+  <!-- Prompt Dialog -->
+  <template x-if="$store.prompt?.showPrompt">
+    <div class="dialog-overlay" @click.self="$store.prompt.promptReject()">
+      <div class="dialog">
+        <div class="dialog__title" x-text="$store.prompt.promptMessage"></div>
+        <input class="dialog__input" x-model="$store.prompt.promptValue"
+          @keyup.enter="$store.prompt.promptResolve($store.prompt.promptValue)"
+          type="text" x-init="$nextTick(() => $el.focus())" />
+        <div class="dialog__actions">
+          <button class="btn" @click="$store.prompt.promptReject()">Cancel</button>
+          <button class="btn btn--primary" @click="$store.prompt.promptResolve($store.prompt.promptValue)">OK</button>
         </div>
       </div>
-    </template>
+    </div>
+  </template>
 
-    <!-- Alert -->
-    <ion-alert header="Alert!"></ion-alert>
-    <script>
-      const defaultButtons = [
-        {
-          text: 'Cancel',
-          role: 'cancel',
-          handler: () => {
-            console.log('Alert canceled')
-          },
-        },
-        {
-          text: 'OK',
-          role: 'confirm',
-          handler: () => {
-            console.log('Alert confirmed')
-          },
-        },
-      ]
+  <!-- Confirm Dialog -->
+  <template x-if="$store.confirm?.isOpen">
+    <div class="dialog-overlay" @click.self="$store.confirm.cancel()">
+      <div class="dialog">
+        <div class="dialog__title" x-text="$store.confirm.message"></div>
+        <div class="dialog__actions">
+          <button class="btn" @click="$store.confirm.cancel()">Cancel</button>
+          <button class="btn btn--primary" @click="$store.confirm.accept()">OK</button>
+        </div>
+      </div>
+    </div>
+  </template>
 
-      function ionAlert({
-        header,
-        subheader,
-        message,
-        inputs,
-        buttons = defaultButtons,
-      }) {
-        const alert = $('ion-alert')
-        alert.isOpen = true
-        alert.buttons = buttons
-        alert.header = header
-        alert.subHeader = subheader
-        alert.message = message
-        alert.inputs = inputs || []
-
-        return new Promise((res, rej) => {
-          alert.addEventListener('ionAlertDidDismiss', function listenToDismiss(event) {
-            alert.isOpen = false;
-            alert.removeEventListener('ionAlertDidDismiss', listenToDismiss)
-            res({
-              roles: { [event.detail.role]: true },
-              values: event.detail.data?.values,
-              value: event.detail.data?.values?.[0],
-            })
-          })
-        })
-      }
-
-      function ionPrompt({
-        ...args
-      }) {
-        return ionAlert({
-          buttons: args.buttons || ['OK'],
-          inputs: args.inputs || [
-            {
-              placeholder: '',
-            },
-          ],
-          ...args,
-        })
-      }
-    </script>
-
-  </div>
-  </ion-app>
 </body>
 
 </html>

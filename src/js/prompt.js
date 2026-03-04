@@ -1,4 +1,4 @@
-// window.prompt Polyfill because it's not availble in Tauri WebView
+// window.prompt polyfill — not available in Tauri WebView
 window.prompt = async function(message, defaultValue = '') {
   return new Promise((resolve, reject) => {
     alp.store('prompt').showPromptDialog(message, defaultValue, resolve, reject)
@@ -6,16 +6,10 @@ window.prompt = async function(message, defaultValue = '') {
 }
 
 alp.store('prompt', {
-  selectedDir: '',
-  files: [],
-  currentFile: null,
-  content: '',
   showPrompt: false,
   promptMessage: '',
   promptValue: '',
-  promptResolve: null,
-  promptReject: null,
-  
+
   promptResolve(value) {
     this.showPrompt = false
     this.resolve?.(value)
@@ -36,7 +30,51 @@ alp.store('prompt', {
     this.showPrompt = false
     this.reject?.()
     this.promptValue = ''
-    this.promptResolve = null
+    this.resolve = null
     this.reject = null
   },
 })
+
+
+// Confirm dialog store
+alp.store('confirm', {
+  isOpen: false,
+  message: '',
+  _resolve: null,
+
+  show(message) {
+    this.isOpen = true
+    this.message = message
+    return new Promise(resolve => { this._resolve = resolve })
+  },
+
+  accept() {
+    this.isOpen = false
+    this._resolve?.({ roles: { confirm: true } })
+    this._resolve = null
+  },
+
+  cancel() {
+    this.isOpen = false
+    this._resolve?.({ roles: { cancel: true } })
+    this._resolve = null
+  },
+})
+
+
+// ionAlert — API-compatible replacement for Ionic's ion-alert
+window.ionAlert = function({ message, header } = {}) {
+  return alp.store('confirm').show(message || header || '')
+}
+
+// ionPrompt — API-compatible replacement for Ionic's ionPrompt
+window.ionPrompt = function({ header, message } = {}) {
+  return new Promise((resolve) => {
+    alp.store('prompt').showPromptDialog(
+      header || message || '',
+      '',
+      (value) => resolve({ value }),
+      () => resolve({ value: null })
+    )
+  })
+}
