@@ -10,25 +10,23 @@
     "opener:default",
     {
       "identifier": "opener:allow-open-path",
-      "allow": [
-        {
-          "path": "/**"
-        }
-      ]
+      "allow": [{ "path": "/**" }]
     },
     {
       "identifier": "opener:allow-reveal-item-in-dir",
-      "allow": [
-        {
-          "path": "/**"
-        }
-      ]
+      "allow": [{ "path": "/**" }]
     },
     "dialog:default",
     "fs:default",
+    "fs:allow-read-dir",
+    "fs:allow-read-text-file",
+    "fs:allow-write-text-file",
+    "fs:allow-write",
+    "fs:allow-create",
+    "fs:allow-mkdir",
+    "fs:allow-remove",
     "fs:allow-rename",
     "fs:allow-copy-file",
-    "fs:allow-remove",
     "fs:create-app-specific-dirs",
     "fs:allow-app-write-recursive"
   ]

@@ -17,7 +17,10 @@
 
 <body
   x-data="{ sidebarOpen: false }"
-  x-init="$watch('$store.Files?.selectedDirPath', val => { if (val) sidebarOpen = true })"
+  x-init="
+    if ($store.Files.rootDirPath) sidebarOpen = true;
+    $watch('$store.Files.rootDirPath', val => { if (val) sidebarOpen = true })
+  "
 >
 
   <!-- Alpine Plugins -->
@@ -50,15 +53,15 @@
       <button class="btn btn--icon" @click="$store.Files.pickDir()" title="Open folder">
         <i class="bi bi-folder2-open"></i>
       </button>
-      <button class="btn btn--icon" :disabled="!$store.Files.selectedDirPath"
+      <button class="btn btn--icon" :disabled="!$store.Files.rootDirPath"
         @click="$store.Files.newFile()" title="New file">
         <i class="bi bi-file-earmark-plus"></i>
       </button>
-      <button class="btn btn--icon" :disabled="!$store.Files.selectedDirPath"
+      <button class="btn btn--icon" :disabled="!$store.Files.rootDirPath"
         @click="$store.Files.newDir()" title="New folder">
         <i class="bi bi-folder-plus"></i>
       </button>
-      <button class="btn btn--icon" :disabled="!$store.Files.selectedDirPath"
+      <button class="btn btn--icon" :disabled="!$store.Files.rootDirPath"
         @click="$store.Files.openCurrentDirExternally()" title="Open in file manager">
         <i class="bi bi-box-arrow-up-right"></i>
       </button>
@@ -87,7 +90,7 @@
   <!-- Sidebar -->
   <aside class="sidebar" :class="{ 'is-open': sidebarOpen }">
     <div class="sidebar__header">
-      <span class="sidebar__path" x-show="!isAndroid()" x-text="$store.Files.selectedDirPath"></span>
+      <span class="sidebar__path" x-show="!isAndroid()" x-text="$store.Files.currentPath"></span>
       <div class="sidebar__search">
         <i class="bi bi-search"></i>
         <input type="text" class="sidebar__search-input" placeholder="Search..."
@@ -95,6 +98,13 @@
       </div>
     </div>
     <ul class="file-list" x-data="{ openMenuId: null }">
+      <!-- Back row — only shown when not at root -->
+      <li class="file-item file-item--back"
+        x-show="$store.Files.canGoBack"
+        @click="$store.Files.goBack()">
+        <span class="file-item__icon"><i class="bi bi-arrow-up-short"></i></span>
+        <span class="file-item__name">..</span>
+      </li>
       <template x-for="file in $store.Files.items" :key="file.name">
         <li class="file-item" @click="$store.Files.pickFile(file)">
           <span class="file-item__icon">
@@ -102,7 +112,6 @@
           </span>
           <span class="file-item__name" x-text="file.name"></span>
           <button class="btn btn--icon btn--sm file-item__menu-btn"
-            x-show="file.name !== '../'"
             @click.stop="openMenuId = openMenuId === file.name ? null : file.name">
             <i class="bi bi-three-dots-vertical"></i>
           </button>

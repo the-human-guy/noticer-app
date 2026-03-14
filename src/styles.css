@@ -262,6 +262,15 @@ body {
   color: #f0ad4e;
 }
 
+.file-item--back {
+  color: var(--color-text-muted);
+  font-size: 13px;
+}
+
+.file-item--back .file-item__icon {
+  font-size: 20px;
+}
+
 .file-item__name {
   flex: 1;
   min-width: 0;

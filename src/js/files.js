@@ -1,5 +1,12 @@
+// Nav stack entry shape:
+//   { path: string, androidUri: string|null, relPath: string }
+//   path       — display string (fs path on desktop, content URI on Android)
+//   androidUri — URI passed to AndroidFS.readDir() for this level
+//   relPath    — path relative to root dir, used when creating files/dirs on Android
+//                so we always stay within the persistent root permission
+//                (e.g. '' at root, 'notes', 'notes/2024')
+
 const ANDROID_DIR_ROOT = '/storage/emulated/0/Documents/noticer'
-const PARENT_DIR_NAME = '../'
 
 const $Files = () => alp.store('Files')
 
@@ -9,180 +16,168 @@ alp.store('Files', {
   items: [],
 
   _filterText: '',
-  get filterText() {
-    return this._filterText
+  get filterText() { return this._filterText },
+  set filterText(v) { this._filterText = v; this.readSelectedDir() },
+
+  rootDirPath: alp.$persist('').as('rootDirPath'),
+
+  // Android: full URI object { uri, documentTopTreeUri } stored as JSON string
+  _rootUriObjStr: alp.$persist('').as('rootAndroidUriObj'),
+  _getRootUriObj() {
+    const v = this._rootUriObjStr
+    if (!v) return null
+    try { return typeof v === 'string' ? JSON.parse(v) : v } catch { return null }
   },
-  set filterText(newVal) {
-    this._filterText = newVal
-    this.readSelectedDir()
+  _setRootUriObj(obj) {
+    this._rootUriObjStr = JSON.stringify(obj)
   },
+
+  _navStack: alp.$persist([]).as('navStack'),
+
+  get currentDir() {
+    const s = this._navStack
+    return s.length ? s[s.length - 1] : null
+  },
+  get canGoBack() { return this._navStack.length > 1 },
+  get currentPath() { return this.currentDir?.path || '' },
 
   init() {
-    log(this.selectedDirPath)
-    if (!this.selectedDirPath && isAndroid()) {
-      this.selectedDirPath = ANDROID_DIR_ROOT
-      fs.mkdir(this.selectedDirPath)
+    if (!this.rootDirPath && isAndroid()) {
+      this.rootDirPath = ANDROID_DIR_ROOT
+      fs.mkdir(this.rootDirPath)
     }
-    if (this.selectedDirPath) {
-      this.readSelectedDir()
+    if (this.rootDirPath && !this._navStack.length) {
+      this._navStack = [{ path: this.rootDirPath, androidUri: this.rootDirPath, relPath: '' }]
     }
-  },
-
-  userSelectedPaths: alp.$persist({
-    [ANDROID_DIR_ROOT]: true,
-  }).as('userSelectedPaths'),
-
-  selectedDirPath: alp.$persist('').as('selectedDirPath'),
-
-  _androidDirUriObj: alp.$persist('').as('_androidDirUriObj'),
-  getAndroidDirUriObj() {
-    return typeof this._androidDirUriObj === 'string'
-      ? JSON.parse(this._androidDirUriObj)
-      : this._androidDirUriObj
-  },
-  setAndroidDirUriObj(newAndroidDirUriObj) {
-    this._androidDirUriObj = typeof newAndroidDirUriObj === 'string'
-      ? newAndroidDirUriObj
-      : JSON.stringify(newAndroidDirUriObj)
+    if (this.currentDir) this.readSelectedDir()
   },
 
   async pickDir() {
     if (isAndroid()) {
-      const URIObj = await AndroidFS.showOpenDirPicker()
-      if (!URIObj) {
-        return null
-      }
-      const { uri } = URIObj
-      log('pickDir android uri: ', uri)
-      await AndroidFS.persistUriPermission(URIObj)
-      if (uri) {
-        $Files().userSelectedPaths[uri] = true
-        $Files().setAndroidDirUriObj(JSON.stringify(URIObj))
-        $Files().changeDir(uri)
-      }
+      const uriObj = await AndroidFS.showOpenDirPicker()
+      if (!uriObj) return
+      await AndroidFS.persistUriPermission(uriObj)
+      $Files()._setRootUriObj(uriObj)
+      $Files().rootDirPath = uriObj.uri
+      $Files()._navStack = [{ path: uriObj.uri, androidUri: uriObj.uri, relPath: '' }]
     } else {
-      const uri = await dialog.open({
-        multiple: false,
-        directory: true,
-      })
-      log(uri)
-      if (uri) {
-        $Files().userSelectedPaths[uri] = true
-        $Files().changeDir(uri)
-      }
+      // Rust opens the native picker and grants fs scope internally.
+      // The frontend only receives the path string for display — it cannot
+      // influence which path is granted.
+      const path = await invoke('pick_and_grant_dir')
+      if (!path) return
+      $Files().rootDirPath = path
+      $Files()._navStack = [{ path, androidUri: null, relPath: '' }]
     }
+    $Files().readSelectedDir()
   },
 
   async readSelectedDir() {
+    const dir = $Files().currentDir
+    if (!dir) return
     let files = []
-
     try {
       if (isAndroid()) {
-        files = await AndroidFS.readDir($Files().getAndroidDirUriObj())
-        log('readSelectedDir android files: ', files)
+        files = await AndroidFS.readDir(dir.androidUri)
+        log('readSelectedDir android files:', files)
       } else {
-        files = await fs.readDir(this.selectedDirPath)
+        files = await fs.readDir(dir.path)
       }
-      const filterTextLowerCase = this.filterText?.toLowerCase?.()
-      files = files.filter(file => file.name.toLowerCase().includes(filterTextLowerCase))
+      const q = (this.filterText || '').toLowerCase()
+      if (q) files = files.filter(f => f.name.toLowerCase().includes(q))
       log(files)
-    } catch (error) {
-      log.error('readSelectedDir failed: ', error)
+    } catch (e) {
+      log.error('readSelectedDir failed:', e)
       files = []
-    } finally {
-      $Files().items = [
-        { name: PARENT_DIR_NAME },
-        ...files
-      ]
     }
+    $Files().items = files
   },
 
-  async changeDir(newPath) {
-    if (!newPath) {
-      return false
+  async _pushDir(dirEntry) {
+    const cur = $Files().currentDir
+    let entry
+    if (isAndroid()) {
+      const androidUri = dirEntry.uri?.uri || dirEntry.uri
+      const relPath = cur.relPath ? cur.relPath + '/' + dirEntry.name : dirEntry.name
+      entry = { path: androidUri, androidUri, relPath }
+    } else {
+      entry = { path: cur.path + '/' + dirEntry.name, androidUri: null, relPath: '' }
     }
-    $Files().selectedDirPath = newPath
+    $Files()._navStack = [...$Files()._navStack, entry]
+    $Files().readSelectedDir()
+  },
+
+  goBack() {
+    if (!$Files().canGoBack) return
+    $Files()._navStack = $Files()._navStack.slice(0, -1)
     $Files().readSelectedDir()
   },
 
   async pickFile(file) {
-    const { name, uri } = file
-    log(name)
-    if (name == PARENT_DIR_NAME) {
-      return this.goBack()
-    }
-    const filePath = isAndroid() ? uri?.uri : $Files().selectedDirPath + "/" + name
-
     if (_isDir(file)) {
-      $Files().changeDir(filePath)
+      $Files()._pushDir(file)
     } else {
+      const filePath = isAndroid()
+        ? (file.uri?.uri || file.uri)
+        : $Files().currentDir.path + '/' + file.name
       $File().changeFile(filePath)
-    }
-  },
-  goBack() {
-    const newPath = $Files().selectedDirPath.split('/').slice(0, -1).join('/')
-    if (isPathAllowed($Files().userSelectedPaths, newPath)) {
-      $Files().changeDir(newPath)
     }
   },
 
   async newFile() {
-    const { value: newFileName } = await window.ionPrompt({ header: 'Create file' });
-
-    if (newFileName) {
-      const { selectedDirPath, } = $Files()
-      const newFilePath = selectedDirPath + "/" + newFileName
-      log(newFileName)
+    const { value: newFileName } = await window.ionPrompt({ header: 'Create file' })
+    if (!newFileName) return
+    const cur = $Files().currentDir
+    try {
       if (isAndroid()) {
-        const fileURI = await AndroidFS.createNewFile($Files().getAndroidDirUriObj(), newFileName)
+        const relPath = cur.relPath ? cur.relPath + '/' + newFileName : newFileName
+        const fileURI = await AndroidFS.createNewFile($Files()._getRootUriObj(), relPath)
         $Files().readSelectedDir()
         $File().changeFile(fileURI.uri)
       } else {
+        const newFilePath = cur.path + '/' + newFileName
         const file = await fs.create(newFilePath)
         await file.write(new TextEncoder().encode(''))
         await file.close()
         $Files().readSelectedDir()
         $File().changeFile(newFilePath)
       }
+    } catch (e) {
+      log.error('newFile failed:', e)
     }
   },
 
   async newDir() {
-    const { value: newDirName } = await window.ionPrompt({ header: 'Create folder' });
-    if (newDirName) {
-      log(newDirName)
+    const { value: newDirName } = await window.ionPrompt({ header: 'Create folder' })
+    if (!newDirName) return
+    const cur = $Files().currentDir
+    try {
       if (isAndroid()) {
-        await AndroidFS.createDirAll($Files().getAndroidDirUriObj(), newDirName)
+        const relPath = cur.relPath ? cur.relPath + '/' + newDirName : newDirName
+        await AndroidFS.createDirAll($Files()._getRootUriObj(), relPath)
       } else {
-        const newDirPath = $Files().selectedDirPath + "/" + newDirName
-        await fs.mkdir(newDirPath)
+        await fs.mkdir(cur.path + '/' + newDirName)
       }
-      $Files().readSelectedDir()
+    } catch (e) {
+      log.error('newDir failed:', e)
     }
+    $Files().readSelectedDir()
   },
 
   async deleteFileOrDir(file) {
-    if ((await ionAlert({
-      message: `Are you sure you want to delete "${file.name}"?`,
-    }))?.roles?.confirm) {
-      try {
-        if (isAndroid()) {
-          const uri = file.uri?.uri || file.uri
-          if (_isDir(file)) {
-            await AndroidFS.removeDirAll(uri)
-          } else {
-            await AndroidFS.removeFile(uri)
-          }
-        } else {
-          await fs.remove($Files().selectedDirPath + '/' + file.name, {
-            recursive: true,
-          })
-        }
-      } catch (e) {
-        log.error('Delete failed:', e)
+    if (!(await ionAlert({ message: `Delete "${file.name}"?` }))?.roles?.confirm) return
+    const cur = $Files().currentDir
+    try {
+      if (isAndroid()) {
+        const uri = file.uri?.uri || file.uri
+        _isDir(file) ? await AndroidFS.removeDirAll(uri) : await AndroidFS.removeFile(uri)
+      } else {
+        await fs.remove(cur.path + '/' + file.name, { recursive: true })
       }
-      $Files().readSelectedDir()
+    } catch (e) {
+      log.error('Delete failed:', e)
     }
+    $Files().readSelectedDir()
   },
 
   async renameFileOrDir(file) {
@@ -191,24 +186,21 @@ alp.store('Files', {
       value: file.name,
     })
     if (!newName || newName === file.name) return
-
+    const cur = $Files().currentDir
     try {
       if (isAndroid()) {
         const oldUri = file.uri?.uri || file.uri
         const oldFsPath = await AndroidFS.getFsPath(oldUri)
-        const parentDir = oldFsPath.substring(0, oldFsPath.lastIndexOf('/'))
-        const newFsPath = parentDir + '/' + newName
+        const newFsPath = oldFsPath.substring(0, oldFsPath.lastIndexOf('/')) + '/' + newName
         await fs.rename(oldFsPath, newFsPath)
         if (!_isDir(file) && $File().openedFilePath === oldUri) {
           $File().openedFilePath = newFsPath
         }
       } else {
-        const oldPath = $Files().selectedDirPath + '/' + file.name
-        const newPath = $Files().selectedDirPath + '/' + newName
+        const oldPath = cur.path + '/' + file.name
+        const newPath = cur.path + '/' + newName
         await fs.rename(oldPath, newPath)
-        if ($File().openedFilePath === oldPath) {
-          $File().openedFilePath = newPath
-        }
+        if ($File().openedFilePath === oldPath) $File().openedFilePath = newPath
       }
     } catch (e) {
       log.error('Rename failed:', e)
@@ -218,20 +210,18 @@ alp.store('Files', {
 
   async duplicateFile(file) {
     if (_isDir(file)) return
-
     const dotIdx = file.name.lastIndexOf('.')
-    const baseName = dotIdx > 0 ? file.name.substring(0, dotIdx) : file.name
-    const ext = dotIdx > 0 ? file.name.substring(dotIdx) : ''
-    const copyName = `${baseName} (copy)${ext}`
-
+    const base = dotIdx > 0 ? file.name.substring(0, dotIdx) : file.name
+    const ext  = dotIdx > 0 ? file.name.substring(dotIdx) : ''
+    const copyName = `${base} (copy)${ext}`
+    const cur = $Files().currentDir
     try {
       if (isAndroid()) {
-        const newFileUri = await AndroidFS.createNewFile($Files().getAndroidDirUriObj(), copyName, null)
-        await AndroidFS.copyFile(file.uri?.uri || file.uri, newFileUri.uri)
+        const relPath = cur.relPath ? cur.relPath + '/' + copyName : copyName
+        const newUri = await AndroidFS.createNewFile($Files()._getRootUriObj(), relPath)
+        await AndroidFS.copyFile(file.uri?.uri || file.uri, newUri.uri)
       } else {
-        const srcPath = $Files().selectedDirPath + '/' + file.name
-        const destPath = $Files().selectedDirPath + '/' + copyName
-        await fs.copyFile(srcPath, destPath)
+        await fs.copyFile(cur.path + '/' + file.name, cur.path + '/' + copyName)
       }
     } catch (e) {
       log.error('Duplicate failed:', e)
@@ -243,18 +233,10 @@ alp.store('Files', {
     try {
       if (isAndroid()) {
         const uri = file.uri?.uri || file.uri
-        if (_isDir(file)) {
-          await AndroidFS.showViewDirDialog(uri)
-        } else {
-          await AndroidFS.showViewFileDialog(uri)
-        }
+        _isDir(file) ? await AndroidFS.showViewDirDialog(uri) : await AndroidFS.showViewFileDialog(uri)
       } else {
-        const path = $Files().selectedDirPath + '/' + file.name
-        if (_isDir(file)) {
-          await opener.openPath(path)
-        } else {
-          await opener.revealItemInDir(path)
-        }
+        const path = $Files().currentDir.path + '/' + file.name
+        _isDir(file) ? await opener.openPath(path) : await opener.revealItemInDir(path)
       }
     } catch (e) {
       log.error('Open in file manager failed:', e)
@@ -264,9 +246,9 @@ alp.store('Files', {
   async openCurrentDirExternally() {
     try {
       if (isAndroid()) {
-        await AndroidFS.showViewDirDialog($Files().getAndroidDirUriObj()?.uri)
+        await AndroidFS.showViewDirDialog($Files().currentDir?.androidUri)
       } else {
-        await opener.openPath($Files().selectedDirPath)
+        await opener.openPath($Files().currentDir?.path)
       }
     } catch (e) {
       log.error('Open dir externally failed:', e)
