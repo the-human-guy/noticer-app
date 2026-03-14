@@ -68,11 +68,11 @@ window.ionAlert = function({ message, header } = {}) {
 }
 
 // ionPrompt — API-compatible replacement for Ionic's ionPrompt
-window.ionPrompt = function({ header, message } = {}) {
+window.ionPrompt = function({ header, message, value: defaultValue } = {}) {
   return new Promise((resolve) => {
     alp.store('prompt').showPromptDialog(
       header || message || '',
-      '',
+      defaultValue ?? '',
       (value) => resolve({ value }),
       () => resolve({ value: null })
     )

@@ -12,6 +12,9 @@
     "core:default",
     "fs:default",
     "android-fs:all-without-delete",
+    "android-fs:allow-remove-file",
+    "android-fs:allow-remove-dir-all",
+    "android-fs:allow-remove-empty-dir",
     {
       "identifier": "fs:allow-read-dir",
       "allow": [
@@ -19,7 +22,8 @@
           "path": "$HOME/Documents/**/*"
         }
       ]
-    },    {
+    },
+    {
       "identifier": "fs:allow-mkdir",
       "allow": [
         {
@@ -67,6 +71,9 @@
         }
       ]
     },
+    "fs:allow-rename",
+    "fs:allow-copy-file",
+    "fs:allow-remove",
     "fs:allow-document-read-recursive",
     "fs:allow-document-write-recursive",
     "fs:create-app-specific-dirs",

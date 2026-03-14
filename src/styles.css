@@ -318,7 +318,13 @@ body {
   background: var(--color-hover);
 }
 
-.context-menu__item .bi-trash {
+.context-menu__separator {
+  height: 1px;
+  background: var(--color-border);
+  margin: 4px 0;
+}
+
+.context-menu__item--danger {
   color: var(--color-danger);
 }
 

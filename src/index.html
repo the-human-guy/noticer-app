@@ -58,8 +58,8 @@
         @click="$store.Files.newDir()" title="New folder">
         <i class="bi bi-folder-plus"></i>
       </button>
-      <button class="btn btn--icon" x-show="!isAndroid()" :disabled="!$store.Files.selectedDirPath"
-        @click="opener.openPath($store.Files.selectedDirPath)" title="Open in file manager">
+      <button class="btn btn--icon" :disabled="!$store.Files.selectedDirPath"
+        @click="$store.Files.openCurrentDirExternally()" title="Open in file manager">
         <i class="bi bi-box-arrow-up-right"></i>
       </button>
     </div>
@@ -98,16 +98,32 @@
       <template x-for="file in $store.Files.items" :key="file.name">
         <li class="file-item" @click="$store.Files.pickFile(file)">
           <span class="file-item__icon">
-            <i class="bi" :class="file.isDirectory ? 'bi-folder-fill' : 'bi-file-earmark-text'"></i>
+            <i class="bi" :class="(file.isDirectory || file.type === 'Dir') ? 'bi-folder-fill' : 'bi-file-earmark-text'"></i>
           </span>
           <span class="file-item__name" x-text="file.name"></span>
           <button class="btn btn--icon btn--sm file-item__menu-btn"
+            x-show="file.name !== '../'"
             @click.stop="openMenuId = openMenuId === file.name ? null : file.name">
             <i class="bi bi-three-dots-vertical"></i>
           </button>
           <div class="context-menu" x-show="openMenuId === file.name"
             @click.outside="openMenuId = null" x-transition.opacity>
             <button class="context-menu__item"
+              @click.stop="$store.Files.renameFileOrDir(file); openMenuId = null">
+              <i class="bi bi-pencil"></i> Rename
+            </button>
+            <button class="context-menu__item"
+              x-show="!(file.isDirectory || file.type === 'Dir')"
+              @click.stop="$store.Files.duplicateFile(file); openMenuId = null">
+              <i class="bi bi-copy"></i> Duplicate
+            </button>
+            <button class="context-menu__item"
+              @click.stop="$store.Files.openInFileManager(file); openMenuId = null">
+              <i class="bi bi-box-arrow-up-right"></i>
+              <span x-text="isAndroid() ? 'Open with\u2026' : 'Show in File Manager'"></span>
+            </button>
+            <div class="context-menu__separator"></div>
+            <button class="context-menu__item context-menu__item--danger"
               @click.stop="$store.Files.deleteFileOrDir(file); openMenuId = null">
               <i class="bi bi-trash"></i> Delete
             </button>
@@ -131,7 +147,7 @@
         <div class="dialog__title" x-text="$store.prompt.promptMessage"></div>
         <input class="dialog__input" x-model="$store.prompt.promptValue"
           @keyup.enter="$store.prompt.promptResolve($store.prompt.promptValue)"
-          type="text" x-init="$nextTick(() => $el.focus())" />
+          type="text" x-init="$nextTick(() => { $el.focus(); $el.select() })" />
         <div class="dialog__actions">
           <button class="btn" @click="$store.prompt.promptReject()">Cancel</button>
           <button class="btn btn--primary" @click="$store.prompt.promptResolve($store.prompt.promptValue)">OK</button>

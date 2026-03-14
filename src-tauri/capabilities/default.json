@@ -16,8 +16,19 @@
         }
       ]
     },
+    {
+      "identifier": "opener:allow-reveal-item-in-dir",
+      "allow": [
+        {
+          "path": "/**"
+        }
+      ]
+    },
     "dialog:default",
     "fs:default",
+    "fs:allow-rename",
+    "fs:allow-copy-file",
+    "fs:allow-remove",
     "fs:create-app-specific-dirs",
     "fs:allow-app-write-recursive"
   ]
