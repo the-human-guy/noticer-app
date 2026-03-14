@@ -165,28 +165,71 @@ body {
 
 .sidebar.is-open {
   transform: translateX(0);
-  box-shadow: var(--shadow-lg);
 }
 
-.sidebar-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.25);
-  z-index: 85;
+.sidebar__resize-handle {
+  position: absolute;
+  top: 0;
+  right: -3px;
+  width: 6px;
+  height: 100%;
+  cursor: col-resize;
+  z-index: 95;
+}
+
+.sidebar__resize-handle::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 2px;
+  width: 2px;
+  height: 100%;
+  background: var(--color-primary);
   opacity: 0;
-  pointer-events: none;
-  transition: opacity var(--transition);
+  transition: opacity 0.15s;
 }
 
-.sidebar-backdrop.is-visible {
-  opacity: 1;
-  pointer-events: auto;
+.sidebar__resize-handle:hover::after,
+.is-resizing .sidebar__resize-handle::after {
+  opacity: 0.4;
 }
+
+/* ========================================
+   Main content (editor area)
+   ======================================== */
+.main-content {
+  width: 100%;
+  transition: width var(--transition), margin-left var(--transition);
+  margin-left: auto;
+}
+
+.main-content.sidebar-open {
+  width: calc(100vw - var(--sidebar-width));
+}
+
+/* Disable transitions while drag-resizing so the layout tracks the cursor */
+.is-resizing .main-content,
+.is-resizing .sidebar {
+  transition: none;
+}
+
+.is-resizing {
+  cursor: col-resize;
+  user-select: none;
+}
+
 
 .sidebar__header {
   padding: 12px;
   border-bottom: 1px solid var(--color-border);
   flex-shrink: 0;
+}
+
+.sidebar__actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-bottom: 8px;
 }
 
 .sidebar__path {
