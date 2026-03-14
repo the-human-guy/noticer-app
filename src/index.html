@@ -175,10 +175,6 @@
         <div class="settings-section">
           <div class="settings-section__heading">Viewport variables</div>
           <label class="settings-check">
-            <input type="checkbox" x-model="draft.updateVh">
-            <span>Update <code>--vh</code></span>
-          </label>
-          <label class="settings-check">
             <input type="checkbox" x-model="draft.updateViewportOffset">
             <span>Update <code>--viewport-offset</code> (soft keyboard fix)</span>
           </label>
@@ -240,7 +236,7 @@
 
   <!-- Logs Modal -->
   <div x-data="{ open: false }"
-    @open-logs.window="open = true"
+    @open-logs.window="open = true; $nextTick(() => $refs.logsBody.scrollTop = $refs.logsBody.scrollHeight)"
     x-show="open" style="display:none">
     <div class="dialog-overlay" @click.self="open = false">
       <div class="dialog dialog--logs">

@@ -1,7 +1,6 @@
 const editor_id = "wysiwyg"
 
 alp.store('settings', {
-  updateVh: alp.$persist(true).as('settings.updateVh'),
   updateViewportOffset: alp.$persist(true).as('settings.updateViewportOffset'),
   scrollIntoView: alp.$persist(true).as('settings.scrollIntoView'),
 
@@ -74,10 +73,6 @@ function updateViewportVars() {
   if (!window.visualViewport) return
   const root = document.documentElement.style
   const s = alp.store('settings')
-
-  if (s.updateVh) {
-    root.setProperty('--vh', `${window.visualViewport.height}px`)
-  }
 
   if (s.updateViewportOffset) {
     root.setProperty('--viewport-offset', `${window.visualViewport.offsetTop}px`)
